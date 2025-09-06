@@ -1,0 +1,88 @@
+/* CSS Document */
+/* All comments go between the front slash and asterisk symbols */
+
+body {
+	background-color: #EFECE6;   /* background color */
+	color: #282824;          /* text color for the entire page */
+}
+
+h1, h2 { 
+	text-align:center;     /* centers h1 and h2 content */
+}
+
+/* styles for the "wrapper" div, notice that "wrapper" is preceded by "#" */
+#wrapper {
+	width: 85%;
+	margin: 0 auto;    /* centers wrapper */
+}
+
+/* styles for the "stepTitle" class, notice that "stepTitle" is preceded by a dot */
+.stepTitle{
+	padding:10px;
+	text-align:center;
+	background-color:#7F5700;
+	color: #EFECE6;
+	font-weight: bold;
+	font-size: 175%;
+ }
+
+.stepContent{ 
+	background-color: #EFECE6;
+	border: #7f5700;
+	padding:7px;
+	display: flex;
+	flex-wrap:wrap;
+	justify-content: center;
+	align-items: center; /*vertical centering*/
+}
+
+
+.stepDescription {
+	width:55%;
+	padding:15px;
+	font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* clean modern typeface */
+  	font-size: 1.05rem;             /* slightly larger for readability */
+ 	line-height: 1.6;               /* more breathing room */
+ 	color: #2e2e2e;                 /* softer dark gray for professional tone */
+}	
+
+.stepImage {
+	width:40%;	
+	padding:5px;
+	border-radius: 15px;
+	text-align: center;
+}
+
+.stepImage img {
+    width:100%;
+	border-radius: 15px;
+    height:auto;
+	border: 2px solid #ccc;
+  	box-shadow:
+    	inset 2px 2px 5px rgba(255,255,255,0.8),  /* light inner edge */
+    	inset -2px -2px 5px rgba(0,0,0,0.25),     /* dark inner edge */
+   		 4px 4px 10px rgba(0,0,0,0.3);             /* outer shadow for lift */
+	/*border-color: #7F5700;*/
+}
+
+.step {
+  border: 3px solid #7f5700;
+  border-radius: 15px;
+  margin: 20px 0;
+  overflow: hidden;
+
+  	box-shadow:
+    	inset 2px 2px 5px rgba(255,255,255,0.8),  /* light inner edge */
+    	inset -2px -2px 5px rgba(0,0,0,0.25),     /* dark inner edge */
+   		 4px 4px 10px rgba(0,0,0,0.3);             /* outer shadow for lift */
+}
+
+.stepDescription a:hover {
+  color: #b8860b;                 /* brighter gold on hover */
+  border-bottom-color: transparent;
+}
+
+
+strong {
+  font-weight: 800;
+}
