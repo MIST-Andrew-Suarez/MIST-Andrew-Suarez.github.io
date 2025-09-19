@@ -1,0 +1,49 @@
+@charset "UTF-8";
+/* CSS Document */
+body {
+	text-align: center;
+	background-color: #EFECE6;
+	line-height: single;
+}
+h1 {
+    text-align: center;   /* centers the heading */
+}
+
+
+nav {
+    text-align: center;   /* centers the group of links */
+	background-color: #4A4A45;
+    display: block;
+}
+
+/*a {
+	display: inline-block;
+    text-align: center;
+	padding: 15px;
+	margin: 3px;
+	font-size: 125%;
+	color:  #EFECE6; 
+}*/
+
+a {
+    display: inline-block;
+    text-align: center;
+    padding: 8px 14px;       /* smaller padding: top/bottom 8px, sides 14px */
+    margin: 3px;
+    font-size: 110%;         /* slightly smaller default */
+    background-color: #EFECE6;
+    color: #282824;
+    border-radius: 8px;      /* add rounded corners */
+    transition: all 0.2s ease; /* smooth hover animation */
+}
+
+
+	
+a:hover {
+	font-size:150%;
+	background-color: #EFECE6; 
+	color: #7F5700; 
+	border-radius: 12px;
+}
+
+
