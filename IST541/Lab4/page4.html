@@ -187,25 +187,44 @@
 
   <script>
     $(function(){
-      // Hover/focus/click reveal logic for each step image
-		function wireStep(imgSel, descSel, continueSel){
-		  const $img = $(imgSel);
-		  const $desc = $(descSel);
-		  const $cont = continueSel ? $(continueSel) : $();  // empty jQuery if none
+      // Hover/focus/click reveal logic for each step image + dynamic hint update
+// Hover/focus/click reveal logic for each step image + optional hint behavior
+  function wireStep(imgSel, descSel, continueSel, nextTextOverride, hideHintAfterReveal=false){
+	  const $img  = $(imgSel);
+	  const $desc = $(descSel);
+	  const $cont = continueSel ? $(continueSel) : $();           // optional
+	  const $hint = $img.siblings('.signaling');                  // the small gray hint
 
-		 function reveal(){
-			if($desc.hasClass('hidden')){
-			  $desc.hide().removeClass('hidden').slideDown(200);
-			  if ($cont.length) $cont.prop('disabled', false);
-			}
-		  }
-		  $img.on('mouseenter focus click', function(e){ e.preventDefault(); reveal(); });
-		}
+  function nextHintText(){
+    const label = nextTextOverride || ($cont.length ? ($cont.text().trim() || 'Continue') : '');
+    return label ? `Click ${label} to continue` : `Continue`;
+  }
 
-      wireStep('#img1', '#desc1', '#continue1');
-      wireStep('#img2', '#desc2', '#continue2');
-      wireStep('#img3', '#desc3', '#continue3');
-	  wireStep('#img5', '#desc4', '#continue4');
+  function reveal(){
+    const wasHidden = $desc.hasClass('hidden');
+    if (wasHidden){
+      $desc.hide().removeClass('hidden').slideDown(200);
+      if ($cont.length && $cont.closest('details')[0] === $img.closest('details')[0]) {
+        $cont.prop('disabled', false);
+      }
+    }
+    if ($hint.length){
+      if (hideHintAfterReveal) {
+        $hint.addClass('hidden');            // <-- hide it completely for this step
+      } else {
+        $hint.text(nextHintText());          // <-- keep the CTA text for other steps
+      }
+    }
+  }
+
+  $img.on('mouseenter focus click', function(e){ e.preventDefault(); reveal(); });
+}
+
+
+ 	wireStep('#img1', '#desc1', '#continue1');          // shows "Click Continue to continue"
+	wireStep('#img2', '#desc2', '#continue2');          // shows "Click Continue to continue"
+	wireStep('#img3', '#desc3', '#continue3');          // shows "Click Go to Quiz to continue"
+	wireStep('#img5', '#desc4', null, 'Summary', true); // hides the hint after reveal
 
       // Continue buttons progressively show the next <details>
       $('#continue1').on('click', function(){
