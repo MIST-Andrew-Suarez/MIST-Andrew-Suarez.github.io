@@ -1,4 +1,4 @@
-@charset "UTF-8";
+
 /* CSS Document */
 body {
 	text-align: center;
@@ -15,6 +15,8 @@ nav {
 	background-color: #4A4A45;
     display: block;
 }
+
+
 
 /*a {
 	display: inline-block;
@@ -49,9 +51,27 @@ a:hover {
 
 /* styles for the "wrapper" div, notice that "wrapper" is preceded by "#" */
 #wrapper {
-	width: 85%;
-	margin: 0 auto;    /* centers wrapper */
+	width: 900px;
+	margin: 0 auto; /* centers wrapper */
+	text-align: center;
 }
+
+
+ #sub_image {
+border: black 5px solid;
+width: 50%;
+}
+ 
+ #scope_image {
+display: none; /* hides content */
+width: 50%;
+border: black 5px solid;
+}
+
+.choices {
+cursor: pointer;
+}
+
 
 /* styles for the "stepTitle" class, notice that "stepTitle" is preceded by a dot */
 .stepTitle{
@@ -142,6 +162,68 @@ summary:-webkit-details-marker {
 
 strong {
   font-weight: 800;
+}
+
+
+/* --- Progressive Reveal: accessibility & polish --- */
+
+/* Ensure images scale nicely */
+.stepImage img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Improve focus visibility on keyboard nav */
+a, button, .choices, summary.stepTitle {
+  outline: none;
+}
+a:focus-visible, button:focus-visible, .choices:focus-visible, summary.stepTitle:focus-visible {
+  outline: 3px solid #7f5700; /* matches your gold accent */
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Make the .choices blocks look clickable and readable */
+.choices {
+  line-height: 1.35;
+}
+.choices:hover {
+  filter: brightness(1.03);
+}
+
+/* Nicer details/summary affordance without breaking your style */
+summary.stepTitle {
+  cursor: pointer;
+  list-style: none; /* remove default triangle for consistency */
+  position: relative;
+  padding-right: 2.2rem; /* room for custom caret */
+}
+summary.stepTitle::after {
+  content: "▸";
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform 150ms ease;
+}
+details[open] > summary.stepTitle::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+/* Subtle hint text */
+.signaling {
+  color: #6f6a5c; /* muted tone that fits your palette */
+  font-size: 0.95rem;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 

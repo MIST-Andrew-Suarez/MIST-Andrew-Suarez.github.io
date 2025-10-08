@@ -2,35 +2,90 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Lab3_iFrame_Suarez</title>
-<link href="CSS/lab3_iFrame.css" rel="stylesheet" type="text/css">
+<title>Lab4_JavaScript_JQuery_Suarez</title>
+<link href="../Lab4/CSS/lab4_iFrame.css" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 
 <body>
 	<h1>Design Thinking</h1>
 	
 	<nav>
-	<a href="index.html"> What is it? </a>
-	<a href="page2.html"> Brainstorming Activity </a>
-	<!--  <a href="page3.html"> Pre Test </a> -->
-	<a href="page4.html"> Introductory Course </a>
-	<a href="page5.html"> Post Test </a>
+	<a href="index.html"> Home</a>
+	<a href="page2.html"> What is it?</a>
+	<a href="page3.html"> The 5 Phases</a>
+	<a href="page4.html"> Case Study</a>
+	<a href="page5.html"> Intro Course</a>
+	<a href="page6.html"> Post-Test</a>	
+	<a href="page7.html"> Brainstorming Activity</a>
+	<a href="page8.html"> Resources</a>
 	</nav>
 	
 	<br><br>
-	<h2> Introductory Design Thinking Course</h2>
-	<!-- iFrame code below -->
-	<!-- 
-
-<iframe src="https://app.mindsmith.ai/learn/cmcnk5met02a8lb07zwn3mnjo" style="height: 700px; width: 1200px; max-height: 100%; max-width: 100%; border:none;" allow="fullscreen" title="Mindsmith Lesson Player"></iframe> 
-
--->
+	<h2> Case Studies</h2>
 	
-	<iframe src="tool-content/index.html" style="height: 700px; width: 1200px; max-height: 100%; max-width: 100%; border:none;" allow="fullscreen"></iframe>
+	<div id="wrapper">
+ 
+		<h1>U.S. Navy Submarine Fleet Case Study</h1>
+ 
+		<h3 id="hint">Hover over the images to learn more</h3>
+ 
+			<!-- <img id="sub_image"  src="../Lab5/IMG/sub1.png"   />
+ 
+			<img id="scope_image" src="../Lab5/IMG/sub2.png" />
+ 
+      	<div id="answer"></div>  <!-- This is a placeholder to display the answer-->
+		
+		
+		
+		<img onmouseenter="showAnswer()" id="sub_image"  src="../Lab4/IMG/sub1.png" />
+		<img onmouseleave="hideAnswer()" id="scope_image" src="../Lab4/IMG/scope1.png" />
 
-	<p>Upon Completion of the course, click the button below to access the post course evaluation</p>
-	<a href="page5.html"> Post Test </a>
+ 
+</div> <!-- closing  “wrapper” -->
+
+	<div id="wrapper">
+		<h1>Question about the Case Study</h1>
+		<h3>Click on one of the following choices</h3>
+
+			<h2 onclick="wrongAnswer1()" class="choices"> Wrong 1 </h2>
+			<h2 onclick="wrongAnswer2()" class="choices"> Wrong 2 </h2>
+			<h2 onclick="rightAnswer()" class="choices"> Correct  </h2>
+			<h2 onclick="wrongAnswer2()" class="choices"> Wrong 3 </h2>
+
+
+		<div id="feedback"></div>
+		<img id="koala_eating" src="img/koala_eating.jpg" />
+	</div>
+
+
 	
+<script>
+ function showAnswer() {
+	   $("#sub_image").hide();
+	   $("#scope_image").show();
+	   $("#answer").html("<h2>ENTER TEXT HERE</h2>");
+	}
 
+function hideAnswer() {
+	   $("#sub_image").show();
+	   $("#Scope_image").hide();
+	   $("#answer").html("<h1>ENTER TEXT HERE<h1>");  
+	}
+</script>
+
+<script>
+      function rightAnswer(){
+         $("#feedback").html("<h2 style='color:green'> Correct! *explanation.*</h2>");
+         $("#koala_eating").show();
+      }
+	
+	  function wrongAnswer(){
+		  $("#feedback").html("<h2 style='color: red'> Incorrect, *that is not correct because* <h/h2>")
+		  $("#scope_image").show();
+	  }
+   </script>
+	
+	
 </body>
 </html>

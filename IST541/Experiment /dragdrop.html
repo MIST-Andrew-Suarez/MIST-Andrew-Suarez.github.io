@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Thinking Match – jQuery UI Drag & Drop</title>
+  <!-- jQuery & jQuery UI (CDN) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0f172a;          /* slate-900 */
+      --card:#111827;        /* gray-900 */
+      --muted:#94a3b8;       /* slate-400 */
+      --text:#e5e7eb;        /* gray-200 */
+      --accent:#22c55e;      /* green-500 */
+      --accent-2:#3b82f6;    /* blue-500 */
+      --danger:#ef4444;      /* red-500 */
+      --warn:#f59e0b;        /* amber-500 */
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 20% -10%, #1f2937, #0b1220 60%);
+      color: var(--text);
+      min-height: 100vh;
+      display:flex; align-items:center; justify-content:center; padding:32px;
+    }
+    .app{ width: min(1100px, 100%); }
+
+    header{ display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:16px; }
+    h1{ font-size: clamp(22px, 4vw, 34px); margin:0; letter-spacing:.3px }
+    .sub{ color: var(--muted); font-size: 14px; margin-top:6px }
+
+    .board{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    /* Column shells */
+    .col{ background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; box-shadow: 0 10px 30px rgba(0,0,0,.25);}
+
+    .col h2{ margin:4px 0 12px; font-size:18px; color: #d1d5db; display:flex; gap:8px; align-items:center }
+    .hint{ font-size:12px; color:var(--muted)}
+
+    /* Draggable chips */
+    .bank{ display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:12px }
+    .drag{ background: linear-gradient(180deg, #1f2937, #111827); border: 1px solid rgba(255,255,255,.08);
+      color:#f8fafc; padding:10px 12px; border-radius:14px; cursor:grab; text-align:center; font-weight:600; user-select:none; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+    .ui-draggable-dragging{ cursor:grabbing; filter: drop-shadow(0 8px 18px rgba(0,0,0,.45)); }
+    .placed{ opacity:.85; cursor:not-allowed }
+
+    /* Drops */
+    .drops{ display:grid; gap:12px }
+    .drop{ background: linear-gradient(180deg, #0b1220, #0a0f1a); border:1px dashed rgba(148,163,184,.35); border-radius:14px; padding:12px; min-height:84px; display:grid; grid-template-columns: 40px 1fr; gap:12px; align-items:center; transition: border-color .2s, background .2s }
+    .drop-header{ width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-weight:700; background:#0f172a; border:1px solid rgba(255,255,255,.08) }
+
+    .drop-desc{ font-size:14px; color:#d1d5db; line-height:1.35 }
+    .drop.active{ border-color: var(--accent-2); background: linear-gradient(180deg, rgba(59,130,246,.10), rgba(59,130,246,.04)); }
+    .drop.correct{ border-color: var(--accent); box-shadow: inset 0 0 0 2px rgba(34,197,94,.35) }
+    .drop.wrong{ border-color: var(--danger); box-shadow: inset 0 0 0 2px rgba(239,68,68,.35) }
+
+    .slot{ grid-column: 1 / -1; background: rgba(59,130,246,.10); border:1px solid rgba(59,130,246,.25); border-radius:10px; padding:8px 10px; text-align:center; font-weight:700 }
+
+    /* Controls */
+    .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px }
+    button{ appearance:none; border:none; padding:10px 14px; border-radius:12px; font-weight:700; color:#0b1220; background:#e5e7eb; cursor:pointer }
+    .primary{ background: var(--accent-2); color:white }
+    .ghost{ background: transparent; color:#cbd5e1; border:1px solid rgba(255,255,255,.12) }
+
+    .score{ margin-left:auto; color:#cbd5e1; font-weight:700 }
+    .badge{ padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.12); font-size:12px }
+
+    footer{ margin-top:14px; color:var(--muted); font-size:12px }
+    a{ color:#a5b4fc }
+
+    @media (max-width: 820px){
+      .board{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Design Thinking drag-and-drop matching activity">
+    <header>
+      <div>
+        <h1>Match the 5 Phases of Design Thinking</h1>
+        <div class="sub">Drag each phase into the description where it best fits. Then click <strong>Check Answers</strong>.</div>
+      </div>
+      <div class="badge" aria-live="polite" id="live">Ready</div>
+    </header>
+
+    <div class="board" id="board">
+      <!-- Left: draggable bank -->
+      <section class="col" aria-labelledby="bank-h">
+        <h2 id="bank-h">Phases (drag me)</h2>
+        <div class="bank" id="bank" role="list">
+          <!-- Populated by JS -->
+        </div>
+        <div class="controls">
+          <button class="ghost" id="shuffleBtn" type="button" title="Shuffle the phases">Shuffle</button>
+          <button class="ghost" id="resetBtn" type="button" title="Reset the game">Reset</button>
+          <span class="score" id="score">Score: 0/5</span>
+        </div>
+      </section>
+
+      <!-- Right: droppable targets with descriptions -->
+      <section class="col" aria-labelledby="targets-h">
+        <h2 id="targets-h">Descriptions (drop here)</h2>
+        <div class="drops" id="targets" role="list">
+          <!-- Populated by JS -->
+        </div>
+        <div class="controls">
+          <button class="primary" id="checkBtn" type="button">Check Answers</button>
+          <button class="ghost" id="showBtn" type="button">Show Correct</button>
+        </div>
+        <footer>
+          Accessibility tip: this demo is optimized for mouse/touch drag via jQuery UI. For full WCAG support, add a parallel keyboard workflow (arrow keys + Enter). If you want, I can wire that up next.
+        </footer>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ==== Data model ==== //
+    const PHASES = [
+      { id: 'empathize',  label: 'Empathize',  desc: 'Research users through interviews, observation, and context to understand needs, pain points, and emotions.' },
+      { id: 'define',     label: 'Define',     desc: 'Synthesize research into a clear problem statement (POV) and measurable design criteria.' },
+      { id: 'ideate',     label: 'Ideate',     desc: 'Generate many ideas without judgment; explore breadth with techniques like SCAMPER or Crazy 8s.' },
+      { id: 'prototype',  label: 'Prototype',  desc: 'Build quick, low-fidelity representations to explore solutions and learn fast.' },
+      { id: 'test',       label: 'Test',       desc: 'Evaluate prototypes with users; capture insights to iterate or pivot as needed.' }
+    ];
+
+    // Utility: shuffle array in-place
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i], arr[j]]=[arr[j], arr[i]] } return arr }
+
+    // Render draggables
+    function renderBank(){
+      const $bank = $('#bank').empty();
+      const shuffled = shuffle([...PHASES]);
+      for(const p of shuffled){
+        const $chip = $('<div/>',{
+          class:'drag', text:p.label, 'data-id':p.id, role:'listitem', tabindex:0,
+          'aria-grabbed':'false', 'aria-label':`Draggable: ${p.label}`
+        });
+        ;
+      }
+      updateScore();
+      $('#live').text('Shuffled');
+    }
+
+    // Render droppable targets
+    function renderTargets(){
+      const $t = $('#targets').empty();
+      let order = 1;
+      const orderPhases = shuffle([...PHASES]);
+      for(const p of orderPhases){
+        const $drop = $('<div/>',{
+          class:'drop', 'data-accept':p.id, 'data-filled':'', role:'listitem',
+          'aria-label':`Drop target for: ${p.label}`
+        }this).toggleClass('correct', !!ok).toggleClass('wrong', filled && !ok);
+        if(ok) correct++;
+      });
+      $('#live').text(correct===PHASES.length ? 'All correct! 🎉' : 'Checked. Review items in red.');
+    }
+
+    function showCorrect(){
+      resetAll();
+      // Place each chip into its correct target programmatically
+      PHASES.forEach(p => {
+        const $drag = $(`.drag[data-id="${p.id}"]`).first();
+        const $target = $(`.drop[data-accept="${p.id}"]`).first();
+        $target.find('.slot').remove();
+        $drag.addClass('placed').draggable('disable').css({left:0, top:0});
+        $target.append($drag).attr('data-filled', p.id).addClass('correct');
+      });
+      updateScore();
+      $('#live').text('Shown correct answers');
+    }
+
+    function resetAll(){
+      // Move chips back to bank and re-enable dragging
+      const $bank = $('#bank');
+      $('.drag').each(function(){
+        $(this).removeClass('placed').draggable('enable').css({left:0, top:0}).appendTo($bank);
+      });
+      $('.drop').each(function(){
+        $(this).removeClass('active wrong correct').attr('data-filled','');
+        if($(this).find('.slot').length===0){ $(this).append($('<div/>',{class:'slot', text:'Drop phas('click', renderBank);
+      $('#resetBtn').on('click', resetAll);
+      $('#checkBtn').on('click', checkAnswers);
+      $('#showBtn').on('click', showCorrect);
+
+      // Optional: enable basic touch via HTML5 drag polyfills or jQuery UI Touch Punch if desired
+      // (Not included here to keep the demo dependency-light.)
+    });
+  </script>
+</body>
+</html>
+
