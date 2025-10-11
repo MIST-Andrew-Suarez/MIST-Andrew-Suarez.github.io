@@ -1,0 +1,264 @@
+/*
+  Design Thinking Site — Clean, Organized, Responsive CSS
+  ------------------------------------------------------------------
+  Goals
+  - Keep all existing selectors used by the HTML so nothing breaks.
+  - Add variables, sensible defaults, and responsive rules for all devices.
+  - Improve accessibility (focus states, reduced motion), and avoid layout shift.
+  - Modular sections with clear labels so it’s easy to maintain.
+
+  Files using this stylesheet: index.html, page2–page7.html
+*/
+
+/* ==================================================================
+   Design Thinking Site — Clean, Organized, Responsive CSS
+   Dreamweaver-Compatible Version
+   ------------------------------------------------------------------
+   Fonts: Libre Baskerville (headers) + DM Sans (body)
+   Compatible with index.html and pages 2–7.
+   ================================================================== */
+
+/* ==== Import Fonts ==== */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
+/* ==== Color & Layout Variables ==== */
+:root {
+  --color-bg: #EFECE6;
+  --color-ink: #282824;
+  --color-muted: #6f6a5c;
+  --color-dark: #4A4A45;
+  --color-accent: #7f5700;
+  --color-accent-soft: #f7f2e6;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 15px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --container-max: 1000px;
+  --font-heading: 'Libre Baskerville', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fs-base: clamp(15px, 1.1vw + 12px, 18px);
+  --lh-base: 1.55;
+}
+
+/* ==== Base Reset ==== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  color: var(--color-ink);
+  background-color: var(--color-bg);
+  text-align: center;
+}
+img, video { max-width: 100%; height: auto; display: block; }
+iframe { width: 100%; max-width: 100%; border: 0; }
+.hidden { display: none !important; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+strong { font-weight: 800; }
+
+/* ==== Containers ==== */
+#wrapper, .container {
+  width: min(100%, var(--container-max));
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+/* ==== Typography ==== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: 1.25;
+  color: var(--color-dark);
+  margin-block: var(--space-4);
+}
+h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+
+/* Ensure all headings and step titles use Libre Baskerville */
+h1, h2, h3, h4, h5, h6,
+.stepTitle,
+.stepTitle span {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.stepTitle {
+  font-size: 1.4rem;
+  line-height: 1.3;
+}
+
+
+/* ==== Navigation ==== */
+nav {
+  background-color: var(--color-dark);
+  text-align: center;
+  padding: var(--space-2);
+}
+nav a {
+  display: inline-block;
+  text-align: center;
+  padding: 8px 14px;
+  margin: 3px;
+  font-size: 110%;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+nav a:hover, nav a:focus-visible {
+  color: var(--color-accent);
+  background-color: var(--color-accent-soft);
+}
+
+/* ==== Media Elements ==== */
+video {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  display: block;
+  border-radius: var(--radius-sm);
+}
+.video-container { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+.video-container video, .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.padlet-embed { width: 100%; }
+
+/* ==== Details / Step Sections ==== */
+.step {
+  border: 3px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  margin: var(--space-5) 0;
+  overflow: hidden;
+  box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), inset -2px -2px 5px rgba(0,0,0,0.25), 4px 4px 10px rgba(0,0,0,0.3);
+}
+summary.stepTitle {
+  padding: 10px;
+  text-align: center;
+  background-color: var(--color-dark);
+  color: var(--color-bg);
+  font-weight: bold;
+  font-size: 175%;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  padding-right: 2rem;
+}
+summary.stepTitle::after {
+  content: '▸';
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform 150ms ease;
+}
+.step[open] > summary.stepTitle { background: var(--color-accent); }
+.step[open] > summary.stepTitle::after { transform: translateY(-50%) rotate(90deg); }
+summary::-webkit-details-marker { display: none; }
+
+.stepContent {
+  background-color: var(--color-bg);
+  padding: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 800px;
+  margin: 0 auto;
+}
+.stepDescription {
+  width: 55%;
+  padding: var(--space-4);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #2e2e2e;
+  text-align: left;
+}
+.stepImage {
+  width: 40%;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.stepImage img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  border: 2px solid #ccc;
+  box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), inset -2px -2px 5px rgba(0,0,0,0.25), 4px 4px 10px rgba(0,0,0,0.3);
+}
+.signaling { color: var(--color-muted); font-size: 0.95rem; background-color: #C58700; padding: 10px; border-radius: 20px; }
+.material-icons { color: red; font-size: 2em; }
+
+/* ==== Buttons & Choices ==== */
+.btn {
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid var(--color-accent);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-weight: 700;
+}
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.choices {
+  cursor: pointer;
+  margin: 6px 0;
+  padding: 8px 12px;
+  border: 2px solid var(--color-accent);
+  border-radius: 10px;
+  line-height: 1.35;
+  transition: background-color 0.15s ease;
+}
+.choices:hover, .choices:focus-visible { background: var(--color-accent-soft); }
+#feedback { margin-top: 10px; text-align: left; }
+
+/* ==== Accessibility ==== */
+a, button, .choices, summary.stepTitle { outline: none; }
+a:focus-visible, button:focus-visible, .choices:focus-visible, summary.stepTitle:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* === Container width consistency across all pages === */
+#wrapper,
+.container,
+.pageContent,
+.section,
+.content-block {
+  width: 100%;
+  max-width: 1000px;  /* same visual width as index and page4 */
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ==== Legacy IDs ==== */
+#sub_image { border: 5px solid black; width: 50%; }
+#scope_image { display: none; width: 50%; border: 5px solid black; }
+
+/* ==== Responsive ==== */
+@media (max-width: 900px) {
+  .stepDescription, .stepImage { width: 100%; }
+  .stepDescription { order: 2; }
+  .stepImage { order: 1; }
+}
+@media (max-width: 600px) {
+  h1 { font-size: clamp(1.4rem, 6vw, 2rem); }
+  summary.stepTitle { font-size: clamp(1.2rem, 5.5vw, 1.6rem); }
+  nav a { font-size: 1rem; padding: 6px 10px; }
+  .stepContent { padding: var(--space-2); }
+}
+

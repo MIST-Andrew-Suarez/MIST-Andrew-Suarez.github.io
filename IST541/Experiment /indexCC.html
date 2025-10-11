@@ -1,0 +1,145 @@
+<!--<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>index HomePage</title>
+<link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<h1>Design Thinking</h1>
+	
+	<nav>
+	<a href="index.html"> Home</a>
+	<a href="page2.html"> What is it?</a>
+	<a href="page3.html"> The 5 Phases</a>
+	<a href="page4.html"> Case Study</a>
+	<a href="page5.html"> Intro Course</a>
+	<a href="page6.html"> Post-Test</a>	
+	<a href="page7.html"> Brainstorming Activity</a>
+	<a href="page8.html"> Resources</a>
+	</nav>
+	<br><br>
+	
+	
+	<div id="wrapper">
+		<h1> Design Thinking </h1>
+		<table border="1">
+		<tr>
+			<td>
+			   <img src="IMG/ChatGPT Image Apr 15, 2025 at 08_58_09 PM.png" /><br /> Why Design Thinking Matters <br />
+				   <audio controls src="Audio/1minDT-.mp3"> 
+					  This browser does not support HTML5 audio
+					  </audio>
+					   </td>
+			 <td>
+			   <img src="IMG/uploads-0269f79d-9052-4443-91f2-d3dd76ad2a32-chatgpt-image-may-15-2025-at-09_33_52-am.png" /><br />  Where traditional problemsolving falls short <br />
+			   <audio controls src="Audio/30s-.mp3"> 
+				   This browser does not support HTML audio
+				</audio>
+    			</td>
+			</tr>
+		</table>
+
+  
+	</div>-->
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>index HomePage</title>
+  <!-- uses your existing stylesheet and palette -->
+  <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
+  <style>
+    /* tiny polish to fit the homepage use-case without changing your global CSS */
+    .audioMeta { font-size: 0.95rem; color:#6f6a5c; margin: 6px 0 0; }
+    .stepDescription audio { width: 100%; max-width: 420px; margin-top: 8px; }
+    .homeIntro { max-width: 900px; margin: 18px auto 6px; color:#2e2e2e; }
+  </style>
+</head>
+
+<body>
+  <h1>Design Thinking</h1>
+
+  <nav>
+    <a href="index.html"> Home</a>
+    <a href="page2.html"> What is it?</a>
+    <a href="page3.html"> The 5 Phases</a>
+    <a href="page4.html"> Case Study</a>
+    <a href="page5.html"> Intro Course</a>
+    <a href="page6.html"> Post-Test</a>
+    <a href="page7.html"> Brainstorming Activity</a>
+    <a href="page8.html"> Resources</a>
+  </nav>
+
+  <div class="homeIntro">
+    <p><strong>Welcome to the Design Thinking Launch Pad.</strong> Learn the basics and experience how Design Thinking
+    reframes problems and delivers better solutions. Listen to the two short clips below to start your exploration.</p>
+  </div>
+
+  <div id="wrapper">
+    <!-- Card 1 -->
+<details class="step" open>
+  <summary class="stepTitle">🎧 Why Design Thinking Matters</summary>
+  <div class="stepContent">
+    <div class="stepImage">
+      <img src="IMG/ChatGPT Image Apr 15, 2025 at 08_58_09 PM.png"
+           alt="Team collaborating around modern displays" />
+    </div>
+    <div class="stepDescription">
+      <p>
+        The world’s challenges are changing faster than our playbooks. Design Thinking
+        equips leaders to empathize, experiment, and build solutions <em>with</em> people,
+        not just <em>for</em> them.
+      </p>
+
+      <!-- Audio as video w/ captions -->
+      <video controls preload="metadata"
+             poster="IMG/ChatGPT Image Apr 15, 2025 at 08_58_09 PM.png"
+             aria-label="Why Design Thinking Matters (with captions)"
+             style="max-width:420px;width:100%;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.08);">
+        <source src="Audio/1minDT-.mp3" type="audio/mpeg" />
+        <track kind="captions" src="Audio/1minDT.vtt" srclang="en" label="English" default>
+        Sorry, your browser can’t play this media.
+      </video>
+
+      <div class="audioMeta">Duration ~1:00 • Captions: English (toggle via CC)</div>
+    </div>
+  </div>
+</details>
+
+<!-- Card 2 -->
+<details class="step" open>
+  <summary class="stepTitle">⚙️ Where Traditional Problem-Solving Falls Short</summary>
+  <div class="stepContent">
+    <div class="stepImage">
+      <img src="IMG/uploads-0269f79d-9052-4443-91f2-d3dd76ad2a32-chatgpt-image-may-15-2025-at-09_33_52-am.png"
+           alt="Leader analyzing a complex plan and rethinking the approach" />
+    </div>
+    <div class="stepDescription">
+      <p>
+        Assumptions, bias, and rigid processes often miss the root cause. This clip contrasts that with
+        the empathy-first mindset of Design Thinking.
+      </p>
+
+      <video controls preload="metadata"
+             poster="IMG/uploads-0269f79d-9052-4443-91f2-d3dd76ad2a32-chatgpt-image-may-15-2025-at-09_33_52-am.png"
+             aria-label="Traditional Problem-Solving Falls Short (with captions)"
+             style="max-width:420px;width:100%;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.08);">
+        <source src="Audio/30s-.mp3" type="audio/mpeg" />
+        <track kind="captions" src="Audio/30s.vtt" srclang="en" label="English" default>
+      </video>
+
+      <div class="audioMeta">Duration ~0:45 • Captions: English (toggle via CC)</div>
+    </div>
+  </div>
+</details>
+	</div>
+
+	
+	
+</body>
+</html>
+
+	

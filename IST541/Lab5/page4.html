@@ -6,14 +6,6 @@
   <title>page4_Design Thinking Case Study — Progressive Reveal</title>
   <link rel="stylesheet" href="CSS/lab4_jQuery.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <style>
-    .hidden { display: none !important; }
-    .btn { cursor: pointer; padding: 8px 14px; border-radius: 10px; border: 2px solid #7f5700; background: #EFECE6; color: #282824; font-weight: 700; }
-    .btn[disabled] { opacity: .5; cursor: not-allowed; }
-    .choices { cursor: pointer; margin: 6px 0; padding: 8px 12px; border: 2px solid #7f5700; border-radius: 10px; }
-    .choices:hover { background: #f7f2e6; }
-    #feedback { margin-top: 10px; }
-  </style>
 </head>
 <body>
   <h1>Design Thinking</h1>
@@ -31,6 +23,19 @@
 
   <div id="wrapper">
     <h2>Case Study</h2>
+	  
+	  <details class="step" id="intro" open>
+      <summary class="stepTitle">Intro</summary>
+      <div class="stepContent">
+		  <video  controls>
+			<source src="Video/SubmarineCaseStudyIntro.mp4" type="video/mp4" />
+			<source src="Video/SubmarineCaseStudyIntro.webm" type="video/webm" />
+				   <track id="entrack" label="English subtitles" kind="captions" src="Video/SubarineCaseStudyCC.vtt" srclang="en" default>
+			HTML5 Video not supported
+		  </video>
+		  </div>
+		  </details>
+
 
     <!-- STEP 1 -->
 	  <details class="step" id="step1" open>
@@ -154,6 +159,20 @@
 		</div>
 	  </div>
     </details>
+	  
+	 <details class="step" id="summary video" open>
+      <summary class="stepTitle">Summary</summary>
+      <div class="stepContent">
+		  <video  controls>
+			<source src="Video/Defining_the_Core_Problem.mp4" type="video/mp4" />
+			<source src="Video/Defining_the_Core_Problem.webm" type="video/webm" />
+				   <track id="entrack" label="English subtitles" kind="captions" src="Video/Defining_the_Core_Problem.webm.vtt" srclang="en" default>
+			HTML5 Video not supported
+		  </video>
+		  </div>
+		  </details>
+ 
+	  
 	  
   </div>
 
