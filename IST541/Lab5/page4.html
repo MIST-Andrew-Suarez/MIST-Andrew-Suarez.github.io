@@ -175,6 +175,15 @@
 	  
 	  
   </div>
+	
+<script>
+  document.addEventListener('play', function (e) {
+    const media = document.querySelectorAll('audio, video');
+    media.forEach(el => {
+      if (el !== e.target) el.pause();
+    });
+  }, true);
+</script>
 
   <script>
     $(function(){
