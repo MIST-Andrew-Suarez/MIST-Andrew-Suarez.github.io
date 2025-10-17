@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Thinking – Drag and Match (Page 8 style)</title>
+  <!-- Use the same site stylesheet so colors/layout match page4/index -->
+  <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
+  <!-- jQuery UI for drag/drop -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+  <style>
+    /* Inner layout only. All chrome (colors, borders, headings) come from lab4_jQuery.css */
+    .dm-grid { display: grid; gap: 12px; }
+    .dm-bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .dm-chip { cursor: grab; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--color-accent); background: var(--color-bg); font-weight: 700; }
+    .dm-chip.ui-draggable-dragging { cursor: grabbing; }
+
+    .dm-drops { display: grid; gap: 12px; }
+    .dm-drop { border: 2px dashed var(--color-accent); border-radius: 10px; padding: 10px; text-align: left; background: var(--color-accent-soft); }
+    .dm-drop.active { background: #fff; }
+    .dm-drop.correct { border-color: #2f855a; background: #e6f4ec; }
+
+    .dm-slot { margin-top: 8px; padding: 6px; border-radius: 8px; text-align: center; font-weight: 700; background: var(--color-bg); }
+
+    /* Controls bar at the TOP like your earlier version */
+    .dm-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px auto 0; }
+    .dm-controls .btn { border: 2px solid var(--color-accent); background: var(--color-bg); color: var(--color-ink); }
+    .dm-score { text-align: center; margin-top: 6px; font-weight: 800; color: var(--color-dark); }
+
+    /* Keep widths consistent with site */
+    #wrapper { width: min(100%, var(--container-max)); margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <h1>Design Thinking</h1>
+ <nav>
+    <a href="index.html"> Home</a>
+    <a href="page2_5phases.html"> The 5 Phases</a>
+    <a href="page3_CaseStudy.html"> Case Study</a>
+    <a href="page4_IntroCourse.html"> Intro Course</a>
+    <a href="page5_PostTest.html"> Post-Test</a>
+    <a href="page6_BrainStorming.html"> Brainstorming Activity</a>
+    <a href="page7_Matching.html" class="active"> Matching</a>
+	<a href="page8_Resources.html"> Resources</a>
+  </nav>
+
+	<br><br>
+  <div class="app">
+    <h1>Match the 5 Phases of Design Thinking</h1>
+    <div class="sub">Drag each phase into the matching description below. Then click <strong>Check Answers</strong>.</div>
+	  
+  <div id="wrapper">
+    <!-- Controls at the top -->
+    <div class="dm-controls">
+      <button class="btn" id="shuffleBtn" type="button">Shuffle</button>
+      <button class="btn" id="resetBtn" type="button">Reset</button>
+      <button class="btn" id="checkBtn" type="button">Check Answers</button>
+      <button class="btn" id="showBtn" type="button">Show Correct</button>
+    </div>
+    <div class="dm-score" id="score">Score: 0/5</div>
+
+    <!-- STEP 1: Word Bank (matches Page 4 containers) -->
+    <details class="step" open>
+      <summary class="stepTitle">Word Bank</summary>
+      <div class="stepContent">
+        <div class="stepDescription" style="width:100%">
+          <div class="dm-grid">
+            <div class="dm-bank" id="bank"></div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- STEP 2: Definitions (matches Page 4 containers) -->
+    <details class="step" open>
+      <summary class="stepTitle">Definitions</summary>
+      <div class="stepContent">
+        <div class="stepDescription" style="width:100%">
+          <div class="dm-drops" id="targets"></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+<!-- Duplicate control bar at bottom -->
+<div class="dm-controls">
+  <button class="btn" id="shuffleBtn2" type="button">Shuffle</button>
+  <button class="btn" id="resetBtn2" type="button">Reset</button>
+  <button class="btn" id="checkBtn2" type="button">Check Answers</button>
+  <button class="btn" id="showBtn2" type="button">Show Correct</button>
+</div>
+<div class="dm-score" id="score2">
+  Score: <span id="scoreMirror">0/5</span>
+</div>
+		  
+  <script>
+    const PHASES = [
+      { id: 'empathize',  label: 'Empathize',  desc: 'Research users through interviews, observation, and context to understand needs, pain points, and emotions.' },
+      { id: 'define',     label: 'Define',     desc: 'Synthesize research into a clear problem statement (POV) and measurable design criteria.' },
+      { id: 'ideate',     label: 'Ideate',     desc: 'Generate many ideas without judgment; explore breadth with techniques like SCAMPER or Crazy 8s.' },
+      { id: 'prototype',  label: 'Prototype',  desc: 'Build quick, low-fidelity representations to explore solutions and learn fast.' },
+      { id: 'test',       label: 'Test',       desc: 'Evaluate prototypes with users; capture insights to iterate or pivot as needed.' }
+    ];
+
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i], arr[j]]=[arr[j], arr[i]] } return arr }
+
+    function renderBank(){
+      const $bank = $('#bank').empty();
+      shuffle([...PHASES]).forEach(p => {
+        $('<div/>',{ class:'dm-chip', text:p.label, 'data-id':p.id })
+          .appendTo($bank)
+          .draggable({ revert:'invalid', containment:'document', scroll:false, zIndex:1000 });
+      });
+      updateScore();
+    }
+
+    function renderTargets(){
+      const $t = $('#targets').empty();
+      let count = 1;
+      shuffle([...PHASES]).forEach(p => {
+        $('<div/>',{ class:'dm-drop', 'data-accept':p.id })
+          .append(
+            $('<div/>',{ html:`<strong>${count++}.</strong> ${p.desc}` }),
+            $('<div/>',{ class:'dm-slot', text:'Drop phase here' })
+          )
+          .droppable({
+            accept: '.dm-chip', // allow wrong answers; grade on check
+            tolerance: 'intersect',
+            over: function(){ $(this).addClass('active'); },
+            out:  function(){ $(this).removeClass('active'); },
+            drop: function(e, ui){
+              const $drag = ui.draggable; const $target = $(this);
+              $target.removeClass('active correct');
+              $target.find('.dm-slot').remove();
+
+              // If target already has a chip, send it back to bank
+              const $existing = $target.children('.dm-chip').not($drag);
+              if($existing.length){ $existing.css({left:0, top:0}).appendTo('#bank'); }
+
+              $drag.css({left:0, top:0}).appendTo($target);
+              $target.attr('data-filled', $drag.data('id'));
+              updateScore();
+            }
+          })
+          .appendTo($t);
+      });
+    }
+
+    function updateScore(){
+      const total = PHASES.length; let correct = 0;
+      $('.dm-drop').each(function(){
+        const filled = $(this).attr('data-filled');
+        if(filled && filled === $(this).data('accept')) correct++;
+      });
+      $('#score').text(`Score: ${correct}/${total}`);
+      return correct;
+    }
+
+    function checkAnswers(){
+      $('.dm-drop').each(function(){
+        const filled = $(this).attr('data-filled');
+        const ok = filled && filled === $(this).data('accept');
+        $(this).toggleClass('correct', !!ok);
+      });
+    }
+
+    function showCorrect(){
+      resetAll();
+      PHASES.forEach(p => {
+        const $drag = $(`.dm-chip[data-id="${p.id}"]`).first();
+        const $target = $(`.dm-drop[data-accept="${p.id}"]`).first();
+        $target.find('.dm-slot').remove();
+        const $existing = $target.children('.dm-chip').not($drag);
+        if($existing.length){ $existing.css({left:0, top:0}).appendTo('#bank'); }
+        $drag.css({left:0, top:0}).appendTo($target);
+        $target.attr('data-filled', p.id).addClass('correct');
+      });
+      updateScore();
+    }
+
+    function resetAll(){
+      const $bank = $('#bank');
+      $('.dm-chip').each(function(){ $(this).css({left:0, top:0}).appendTo($bank); });
+      renderTargets();
+      updateScore();
+    }
+
+    $(function(){
+      renderTargets();
+      renderBank();
+      $('#shuffleBtn').on('click', ()=>{ renderTargets(); renderBank(); });
+      $('#resetBtn').on('click', resetAll);
+      $('#checkBtn').on('click', checkAnswers);
+      $('#showBtn').on('click', showCorrect);
+		// Bottom duplicate button bindings
+$('#shuffleBtn2').on('click', () => { renderTargets(); renderBank(); });
+$('#resetBtn2').on('click', resetAll);
+$('#checkBtn2').on('click', checkAnswers);
+$('#showBtn2').on('click', showCorrect);
+    });
+	  
+	  
+  </script>
+</div>
+</body>
+</html>
+
+

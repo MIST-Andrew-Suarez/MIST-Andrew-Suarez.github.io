@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>page4_Design Thinking Case Study — Progressive Reveal</title>
+  <link rel="stylesheet" href="CSS/lab4_jQuery.css"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+  <h1>Design Thinking</h1>
+
+	 <nav>
+		<a href="index.html"> Home</a>
+		<a href="page2_5phases.html"> The 5 Phases</a>
+		<a href="page3_CaseStudy.html" class="active"> Case Study</a>
+		<a href="page4_IntroCourse.html"> Intro Course</a>
+		<a href="page5_PostTest.html"> Post-Test</a>
+		<a href="page6_BrainStorming.html"> Brainstorming Activity</a>
+		<a href="page7_Matching.html"> Matching</a>
+		<a href="page8_Resources.html"> Resources</a>
+	  </nav>
+<br><br>
+  <div id="wrapper">
+    <h2>Case Study</h2>
+	  
+	  <details class="step" id="intro" open>
+      <summary class="stepTitle">Intro</summary>
+      <div class="stepContent">
+		  <video  controls>
+			<source src="Video/SubmarineCaseStudyIntro.mp4" type="video/mp4" />
+			<source src="Video/SubmarineCaseStudyIntro.webm" type="video/webm" />
+				   <track id="entrack" label="English subtitles" kind="captions" src="Video/SubarineCaseStudyCC.vtt" srclang="en" default>
+			HTML5 Video not supported
+		  </video>
+		  
+		  <!-- Continue to Step 1 -->
+				<div style="text-align:right; margin-top:10px;">
+				  <button class="btn" id="continue0" aria-label="Continue to Empathize section">Continue</button>
+				</div>
+			  </div>
+			</details>
+
+
+    <!-- STEP 1 -->
+	  <details class="step hidden" id="step1">
+      <summary class="stepTitle">Empathize</summary>
+      <div class="stepContent">
+        <div class="stepImage">
+          <img id="img1" src="IMG/caseStudy_image1.png" alt="Submarine Command Center" />
+          <div class="signaling" style="margin-top:8px; text-align:center;">Hover or click the image</div>
+        </div>
+        <div class="stepDescription hidden" id="desc1" style="text-align: left;">
+          <p><strong>Background:</strong> The U.S. Navy Submarine Force faced growing complexity in its control room operations. Sailors described frustration with cluttered, outdated displays that slowed decision-making and required long training times. By listening directly to these operators and observing their daily workflows, the design team developed empathy for the sailors’ needs — a crucial first step in applying Design Thinking to improve situational awareness at sea. <i>(Hall, 2012, ch. III–IV)</i></p>
+          <ul>
+			<li><strong>Notable results from the Empathize Phase</strong></li>
+            <li><strong>Users:</strong> Helmsman/Planesman, Sonar, EOOW, and Duty Petty Officers.</li>
+            <li><strong>Environment:</strong> Tight spaces, noise discipline, low light, no personal devices, limited network access.</li>
+			  <li><strong>Feelings:</strong>
+				  <ol>
+					 <li>Frustration with cluttered, overlapping displays.</li>
+			         <li>High cognitive load during watch turnover and drills.</li>
+			  	 	 <li>Reliance on verbal cross-checks leading to errors and stress.</li></ol>
+			  </li>
+            <li><strong>What does Success look like:</strong> Faster, more reliable turnover; fewer “did we check X?” call-backs.</li>
+          </ul>
+          <div style="text-align:right; margin-top:10px;">
+            <button class="btn" id="continue1" disabled aria-label="Continue to Define and Ideate section">Continue</button>
+          </div>
+        </div>
+        </div>
+   
+   </details>
+
+    <!-- STEP 2 -->
+    <details class="step hidden" id="step2">
+      <summary class="stepTitle">Reframing the Problem — Define and Ideate</summary>
+      <div class="stepContent">
+        <div class="stepImage">
+          <img id="img2" src="IMG/caseStudy_image2.png" alt="Submarine Scopes, with confused operator." />
+          <div class="signaling" style="margin-top:8px; text-align:center;">Hover or click the image</div>
+        </div>
+        <div class="stepDescription hidden" id="desc2" style="text-align: left;">
+          <p><strong>Define:</strong> Guided by facilitators from IDEO, officers and enlisted personnel reframed what initially seemed like a “technology issue” into a human-centered design challenge: How might we help sailors see, understand, and respond to information faster and more intuitively? Empathy interviews and quick contextual inquiry reveal three primary needs:</p>
+          <ol>
+            <li><strong>At‑a‑glance status</strong> of critical systems and watch actions (what’s done / pending).</li>
+            <li><strong>Hands‑busy usability</strong>: updates must be thumbable with gloves, legible under red light.</li>
+            <li><strong>Reliability under constraints</strong>: minimal tech, works during drills and EMCON; laminated surfaces preferred.</li>
+          </ol>
+          <p>Constraints: no new networked tablets; anything electronic must be approved and ruggedized; space for tools is limited to a clipboard footprint.</p>
+			<p><strong>Ideate:</strong>Through collaborative ideation sessions, participants brainstormed new ways to simplify data visualization and reduce cognitive load — focusing not on adding tools, but on improving usability. <i>(Hall, 2012, pp. 73–82)</i></p>
+			
+          <div style="text-align:right; margin-top:10px;">
+            <button class="btn" id="continue2" disabled aria-label="Continue to Prototype and Test section">Continue</button>
+          </div>
+        </div>
+        </div>
+    </details>
+
+    <!-- STEP 3 -->
+    <details class="step hidden" id="step3">
+      <summary class="stepTitle"> Designing Clarity — Prototype and Test</summary>
+      <div class="stepContent">
+        <div class="stepImage">
+          <img id="img3" src="IMG/caseStudy_image3.png" alt="Clean Modern Control Scopes." />
+          <div class="signaling" style="margin-top:8px; text-align:center;">Hover or click the image</div>
+        </div>
+        <div class="stepDescription hidden" id="desc3" style="text-align: left;">
+		<p><strong>The team translated these insights into early prototypes for redesigned control interfaces.</strong></p>
+			
+          <p><strong>Setup:</strong> The teams sketched two concepts for a pilot:</p>
+			
+          <ul>
+            <li><strong>Concept A:</strong> A low‑tech, laminated turnover board with magnetic tokens and a bold, red‑light‑legible checklist co‑designed with each watchstation.</li>
+            <li><strong>Concept B:</strong> A custom micro‑app on a shared, approved device with dynamic checklists and timestamps.</li>
+          </ul>
+          <p>Leadership is open to whichever reduces cognitive load fastest within policy. What should you test first?</p>
+          <div style="text-align:right; margin-top:10px;">
+            <button class="btn" id="continue3" disabled aria-label="Go to Quiz section">Go to Quiz</button>
+          </div>
+        </div>
+        </div>
+    </details>
+	  
+	  <details class="step hidden" id="quiz">
+  <summary class="stepTitle">Quiz — Quick comprehension check</summary>
+  <div class="stepContent">
+    <!-- LEFT COLUMN: image (hidden until correct) 
+    <div class="stepImage hidden" id="quizImg">
+      <img src="IMG/caseStudy_image4.png" alt="Success image" />
+    </div>-->
+
+    <!-- RIGHT COLUMN: question + choices + feedback + Summary btn -->
+    <div class="stepDescription" id="quizText">
+      <h2 style="text-align:left;">Based on the background above, which action best aligns with the users' primary need?</h2>
+
+      <div class="choices" data-choice="A">A. Launch the micro-app first; the timestamps will impress leadership even if adoption is slow.</div>
+      <div class="choices" data-choice="B">B. Pilot the laminated turnover board with crew-defined checklists; measure errors + handoff time.</div>
+      <div class="choices" data-choice="C">C. Mandate additional turnover training; the process isn’t broken, discipline is.</div>
+      <div class="choices" data-choice="D">D. Reorganize the physical space around each watchstation before testing any checklist changes.</div>
+
+      <div id="feedback" style="margin-top:10px;"></div>
+
+      <div style="text-align:right; margin-top:10px;">
+        <button class="btn hidden" id="continue4" disabled aria-label="Continue to Conclusion section">Continue</button>
+      </div>
+    </div>
+  </div>
+</details>
+
+	  
+	  <!--Conclusion-->
+	  <details class="step hidden" id="Conclusion">
+      <summary class="stepTitle">Conclusion</summary>
+      <div class="stepContent">
+        <div class="stepImage">
+          <img id="img5" src="IMG/caseStudy_image5.png" alt="desc text" />
+          <div class="signaling" style="margin-top:8px; text-align:center;">Hover or click the image</div>
+        </div>
+        <div class="stepDescription hidden" id="desc4" style="text-align: left;">
+			<p><strong>Iterative testing </strong> with sailors led to clean, modern displays that improved awareness and dramatically shortened the learning curve for new operators. The result demonstrated the power of Design Thinking in the military context — using <u>empathy</u>, <u>collaboration</u>, and <u>rapid prototyping</u> to solve complex human-technology challenges beneath the surface. <i>(Hall, 2012, pp. 79–87)</i></p>
+          <div style="text-align:right; margin-top:10px;">
+			  
+			
+			<div style="text-align:right; margin-top:10px;">
+			  <button class="btn" id="continue5" disabled aria-label="Continue to Summary video">Summary</button>
+			</div>
+          </div>
+		</div>
+	  </div>
+    </details>
+	  
+	<!--Summary-->
+	<details class="step hidden" id="summary">
+	  <summary class="stepTitle">Summary</summary>
+	  <div class="stepContent">
+		<video controls>
+		  <source src="Video/Defining_the_Core_Problem.mp4" type="video/mp4" />
+		  <source src="Video/Defining_the_Core_Problem.webm" type="video/webm" />
+		  <track id="entrack_summary" label="English subtitles" kind="captions" src="Video/Defining_the_Core_Problem.webm.vtt" srclang="en" default>
+		  HTML5 Video not supported
+		</video>
+	  </div>
+	</details>
+ 
+	  
+	  
+  </div>
+	
+<script>
+  document.addEventListener('play', function (e) {
+    const media = document.querySelectorAll('audio, video');
+    media.forEach(el => {
+      if (el !== e.target) el.pause();
+    });
+  }, true);
+</script>
+
+  <script>
+    $(function(){
+      // Hover/focus/click reveal logic for each step image + dynamic hint update
+// Hover/focus/click reveal logic for each step image + optional hint behavior
+  function wireStep(imgSel, descSel, continueSel, nextTextOverride, hideHintAfterReveal=false){
+	  const $img  = $(imgSel);
+	  const $desc = $(descSel);
+	  const $cont = continueSel ? $(continueSel) : $();           // optional
+	  const $hint = $img.siblings('.signaling');                  // the small gray hint
+
+  function nextHintText(){
+    const label = nextTextOverride || ($cont.length ? ($cont.text().trim() || 'Continue') : '');
+    return label ? `Click ${label} to proceed` : `Continue`;
+  }
+
+  function reveal(){
+    const wasHidden = $desc.hasClass('hidden');
+    if (wasHidden){
+      $desc.hide().removeClass('hidden').slideDown(200);
+      if ($cont.length && $cont.closest('details')[0] === $img.closest('details')[0]) {
+        $cont.prop('disabled', false);
+      }
+    }
+    if ($hint.length){
+      if (hideHintAfterReveal) {
+        $hint.addClass('hidden');            // <-- hide it completely for this step
+      } else {
+        $hint.text(nextHintText());          // <-- keep the CTA text for other steps
+      }
+    }
+  }
+
+  $img.on('mouseenter focus click', function(e){ e.preventDefault(); reveal(); });
+}
+
+
+ 	wireStep('#img1', '#desc1', '#continue1');          // shows "Click Continue to continue"
+	wireStep('#img2', '#desc2', '#continue2');          // shows "Click Continue to continue"
+	wireStep('#img3', '#desc3', '#continue3');          // shows "Click Go to Quiz to continue"
+	wireStep('#img5', '#desc4', '#continue5', 'Summary', true);
+		
+
+      // Continue buttons progressively show the next <details>
+	  $('#continue0').on('click', function(){
+        $('#step1').removeClass('hidden')[0].open = true;
+        document.getElementById('step1').scrollIntoView({behavior:'smooth', block:'start'});
+		document.activeElement.blur();
+      });	
+      $('#continue1').on('click', function(){
+        $('#step2').removeClass('hidden')[0].open = true;
+        document.getElementById('step2').scrollIntoView({behavior:'smooth', block:'start'}); 
+		document.activeElement.blur();
+      });
+      $('#continue2').on('click', function(){
+        $('#step3').removeClass('hidden')[0].open = true;
+        document.getElementById('step3').scrollIntoView({behavior:'smooth', block:'start'});
+		document.activeElement.blur();
+      });
+      $('#continue3').on('click', function(){
+        $('#quiz').removeClass('hidden')[0].open = true;
+        document.getElementById('quiz').scrollIntoView({behavior:'smooth', block:'start'});
+		document.activeElement.blur();
+	  });
+	  $('#continue4').on('click', function(){
+		$('#Conclusion').removeClass('hidden')[0].open = true;
+	    document.getElementById('Conclusion').scrollIntoView({ behavior: 'smooth', block: 'start' });
+		document.activeElement.blur();
+	  });
+	  $('#continue5').on('click', function(){
+	    $('#summary').removeClass('hidden')[0].open = true;
+	    document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+		document.activeElement.blur();
+	  });
+      // Quiz behavior
+		const CORRECT = 'B';
+		$('.choices').on('click keypress', function(e){
+		  if(e.type === 'keypress' && e.which !== 13 && e.which !== 32) return; // Enter/Space
+		  const choice = $(this).data('choice');
+		  if(!choice) return;
+
+		  // Clear any previous feedback
+		  $('#feedback').empty();
+
+		  if(choice === CORRECT){
+			// Mark feedback + reveal final block
+			$('#feedback').html("<h2 style='color:green; text-align:left;'>Correct! Nice reasoning.</h2>");
+			$('#finalBlock').removeClass('hidden');
+
+			// Disable further answer clicks
+			$('.choices').off('click keypress').css('pointer-events','none');
+
+			// ✅ Reveal the Summary button and enable it
+			$('#continue4').removeClass('hidden').prop('disabled', false);
+		  } else {
+			$('#feedback').html("<h2 style='color:#b00020; text-align:left;'>Not quite. Re-read the background and connect to user needs.</h2>");
+		  }
+		});
+
+    });
+  </script>
+</body>
+</html>
