@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>index HomePage</title>
+  <title>Resources</title>
   <!-- uses your existing stylesheet and palette -->
   <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
   <style>
@@ -17,42 +17,75 @@
   <h1>Design Thinking</h1>
 
   <nav>
-    <a href="index.html" class="active"> Home</a>
+    <a href="index.html"> Home</a>
     <a href="page2_5phases.html"> The 5 Phases</a>
     <a href="page3_CaseStudy.html"> Case Study</a>
     <a href="page4_IntroCourse.html"> Intro Course</a>
     <a href="page5_PostTest.html"> Post-Test</a>
-    <a href="page6_Brainstorming.html"> Brainstorming Activity</a>
+    <a href="page6_BrainStorming.html"> Brainstorming Activity</a>
     <a href="page7_Matching.html"> Matching</a>
-	<a href="page9_Empathymap.html"> Empathy Mapping Activity</a>
-	<a href="page8_Resources.html"> Resources</a>
+	<a href="page8_Resources.html" class="active"> Resources</a>
   </nav>
 
   <div class="homeIntro">
-    <p><strong>Welcome to the Design Thinking Launch Pad.</strong> Learn the basics and experience how Design Thinking
-    reframes problems and delivers better solutions. Listen to the two short clips below to start your exploration.</p>
+    <p>Now that you have a baseline understanind of Design Thinking, Here are a few resources for referance or further research.</p>
   </div>
 
   <div id="wrapper">
-	<!-- Card 1 -->
-	  <details class="step" open>
-		<summary class="stepTitle">What is Design Thinking?</summary>
+	  <details class="step" closed>
+		<summary class="stepTitle">Design Thinking Referance Sheet</summary>
 		<div class="stepContent">
-		  <!-- Responsive iframe container -->
-		  <div class="video-container">
-			<iframe
-			  src="https://www.youtube.com/embed/gnWj97CEjeo?si=2UDK1lzUJOs83_w1"
-			  title="YouTube video player"
-			  frameborder="0"
-			  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-			  referrerpolicy="strict-origin-when-cross-origin"
-			  allowfullscreen>
-			</iframe>
+			<div class="signaling" style="margin-top:8px; text-align:center;">We hope this referance sheet will help you as you apply Design Thinking principles in your workplace.</div>
+		  <div class="image">
+          <img id="img1" src="IMG/JobAid-DTRefSheet.png" alt="Job Aid for first 3 phases" />
 		  </div>
 		  </div>
     	</details>
 	  
-    <!-- Card 2 -->
+	  
+	  <details class="step" closed>
+		<summary class="stepTitle">Effective Human Centered RCA.</summary>
+		<div class="stepContent">
+			<div class="signaling" style="margin-top:8px; text-align:center;">We hope this referance sheet will help you effectively empathize and identify the root cause of problems.</div>
+		  <div class="image">
+          <img id="img2" src="IMG/JobAid-EmpathyMap-RCA.png" alt="Job Aid for Empathy Mapping" />
+		  </div>
+		  </div>
+    	</details>
+	
+	
+	
+		<details class="step" closed><!--Sources-->
+  			<summary class="stepTitle">Sources</summary>
+  			<div class="stepContent" style="margin-left:.05; padding-left:0; text-align:left; justify-content:flex-start;">
+   			<ul id="apa-bib">
+  					<li>All images generated using ChatGPT for CSUMB.</li>
+ 					<li>Al-Sa'di, A., & Miller, D. (2023). Exploring the impact of artificial intelligence language model ChatGPT on the user experience. International Journal on Technology, Innovation, and Management, 3(1), 1–8. https://doi.org/10.54489/ijtim.v3i1.195</li>
+
+					<li>AND Academy. (2024). 7 real-life design thinking examples. https://www.andacademy.com/resources/blog/ui-ux-design/7-design-thinking-examples/</li>
+
+					<li>Brown, T. (2009). Change by design: How design thinking creates new alternatives for business and society. Harvard Business Press.</li>
+
+					<li>ExperiencePoint. (n.d.). How Netflix used design thinking to reinvent itself, over and over. ExperiencePoint. https://blog.experiencepoint.com/how-netflix-uses-design-thinking</li>
+
+					<li>Micheli, P., Wilner, S. J. S., Bhatti, S. H., Mura, M., & Beverland, M. B. (2019). Doing design thinking: Conceptual review, synthesis, and research agenda. Journal of Product Innovation Management, 36(2), 124–148. https://doi.org/10.1111/jpim.12466</li>
+
+					<li>Passionates. (2025). Netflix design philosophy: Transforming streaming into a $250B industry. https://passionates.com/netflix-design-philosophy-transforming-streaming/</li>
+
+					<li>Proceedings from USNI DARE Innovation Workshop. https://www.usni.org/magazines/proceedings/2023/july/dare-2023-talent-management-and-force-design-navy-future</li>
+
+					<li>The Knowledge Academy. (2025). 10 successful design thinking case studies. https://www.theknowledgeacademy.com/blog/design-thinking-case-study/</li>
+
+					<li>Gao, J., Zhao, H., Yu, C., & Xu, R. (2023). Exploring the feasibility of ChatGPT for event extraction. Journal of Open Innovation: Technology, Market, and Complexity, 9(3), Article 100034. https://doi.org/10.1016/j.joitmc.2023.100034</li>
+
+				</ul>
+
+			</div><!--stepContent-->
+	</details>
+	  
+	</div>
+	  
+  <!--  // Card 2 
     <details class="step" open>
       <summary class="stepTitle">Why Design Thinking Matters</summary>
       <div class="stepContent">
@@ -76,7 +109,7 @@
       </div>
     </details>
 
-    <!-- Card 3 -->
+    // Card 3 
     <details class="step" open>
       <summary class="stepTitle">Where Traditional Problem-Solving Falls Short</summary>
       <div class="stepContent">
@@ -129,7 +162,7 @@
 			  });
 		</script>
 	  	
-  </div>
+  </div> -->
 	
 	
 </body>

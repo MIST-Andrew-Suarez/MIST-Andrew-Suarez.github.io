@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resources — Design Thinking Match</title>
+
+  <!-- Site styles (same as page4) -->
+  <link rel="stylesheet" href="CSS/lab4_jQuery.css"/>
+
+  <!-- jQuery + jQuery UI (for drag/drop) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+  <style>
+    /* Light, minimal layout so it inherits your site colors from lab4_jQuery.css */
+    #wrapper { max-width: 1000px; margin: 0 auto; }
+    .board { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .bank  { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .drag  { padding: 8px 12px; border-radius: 10px; border: 1px solid #ccc; text-align: center; font-weight: 600; background: #f7f7f7; cursor: grab; }
+    .ui-draggable-dragging { cursor: grabbing; }
+    .drops { display: grid; gap: 12px; }
+    .drop  { border: 2px dashed #c9c9c9; border-radius: 10px; padding: 12px; background: #fff; }
+    .drop.active { border-color: #5b9bff; background: #f0f6ff; }
+    .drop.correct { border-color: #22a36b; background: #eefaf4; }
+    .drop.wrong   { border-color: #d94a4a; background: #fff1f1; }
+    .slot { margin-top: 8px; padding: 6px; border-radius: 8px; background: #f2f2f2; text-align: center; font-weight: 600; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls .btn { padding: 8px 12px; border: 1px solid #bbb; border-radius: 8px; background: #fafafa; cursor: pointer; }
+    .controls .btn.primary { background: #5b9bff; color: #fff; border-color: #5b9bff; }
+    .score { margin-left: auto; font-weight: 700; }
+    @media (min-width: 900px){
+      /* optional: widen description boxes for desktop readability */
+      .drops { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Design Thinking</h1>
+
+  <nav>
+    <a href="index.html"> Home</a>
+    <a href="page2.html"> What is it?</a>
+    <a href="page3.html"> The 5 Phases</a>
+    <a href="page4.html"> Case Study</a>
+    <a href="page5.html"> Intro Course</a>
+    <a href="page6.html"> Post-Test</a>
+    <a href="page7.html"> Brainstorming Activity</a>
+    <a href="page8.html"> Resources</a>
+  </nav>
+
+  <br><br>
+
+  <div id="wrapper">
+
+    <section aria-label="Design Thinking drag-and-drop matching activity">
+      <h2>Match the 5 Phases of Design Thinking</h2>
+      <p>Drag each phase from the word bank into the best-fit description. Click <strong>Check Answers</strong> to get feedback. Use <em>Reset</em> to try again.</p>
+
+      <div class="board">
+        <!-- Word bank (top) -->
+        <div>
+          <h4>Word bank</h4>
+          <div class="bank" id="bank"></div>
+          <div class="controls" style="margin-top:8px;">
+            <button class="btn" id="shuffleBtn" type="button" title="Shuffle both lists">Shuffle</button>
+            <button class="btn" id="resetBtn" type="button" title="Reset the game">Reset</button>
+            <button class="btn primary" id="checkBtn" type="button">Check Answers</button>
+            <button class="btn" id="showBtn" type="button">Show Correct</button>
+            <span class="score" id="score">Score: 0/5</span>
+          </div>
+        </div>
+
+        <!-- Definitions (bottom, shuffled) -->
+        <div>
+          <h4>Definitions</h4>
+          <div class="drops" id="targets"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ----- Data ----- //
+    const PHASES = [
+      { id: 'empathize',  label: 'Empathize',  desc: 'Research users through interviews, observation, and context to understand needs, pain points, and emotions.' },
+      { id: 'define',     label: 'Define',     desc: 'Synthesize research into a clear problem statement (POV) and measurable design criteria.' },
+      { id: 'ideate',     label: 'Ideate',     desc: 'Generate many ideas without judgment; explore breadth with techniques like SCAMPER or Crazy 8s.' },
+      { id: 'prototype',  label: 'Prototype',  desc: 'Build quick, low-fidelity representations to explore solutions and learn fast.' },
+      { id: 'test',       label: 'Test',       desc: 'Evaluate prototypes with users; capture insights to iterate or pivot as needed.' }
+    ];
+
+    // Fisher–Yates
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ----- Renderers ----- //
+    function renderBank(){
+      const $bank = $('#bank').empty();
+      shuffle([...PHASES]).forEach(p => {
+        $('<div/>', { class:'drag', text:p.label, 'data-id':p.id })
+          .appendTo($bank)
+          .draggable({
+            revert: 'invalid',
+            containment: 'document',
+            scroll: false,
+            zIndex: 1000,
+            start: function(){
+              // If you drag a piece out of a drop zone, clear that zone’s state
+              const $parentDrop = $(this).closest('.drop');
+              if($parentDrop.length){
+                $parentDrop.removeClass('active wrong correct').attr('data-filled','');
+                if($parentDrop.find('.slot').length===0){
+                  $parentDrop.append($('<div/>',{class:'slot', text:'Drop phase here'}));
+                }
+              }
+            }
+          });
+      });
+      updateScore();
+    }
+
+    function renderTargets(){
+      const $t = $('#targets').empty();
+      let order = 1;
+      shuffle([...PHASES]).forEach(p => {
+        const $drop = $('<div/>', { class:'drop', 'data-accept': p.id })
+          .append(
+            $('<div/>', { html: `<strong>${order++}.</strong> ${p.desc}` }),
+            $('<div/>', { class:'slot', text:'Drop phase here' })
+          )
+          .droppable({
+            // accept ANY card so learners can be wrong; we grade later
+            accept: '.drag',
+            tolerance: 'intersect',
+            over: function(){ $(this).addClass('active'); },
+            out:  function(){ $(this).removeClass('active'); },
+            drop: function(e, ui){
+              const $drag  = ui.draggable;
+              const $target = $(this);
+
+              // If there’s already a chip here, move it back to the bank (or swap)
+              const $existing = $target.children('.drag').not($drag);
+              if($existing.length){
+                $existing.css({left:0, top:0}).appendTo('#bank');
+              }
+
+              // Place the dragged chip in this target (keep draggable so it can be corrected)
+              $target.removeClass('active wrong correct').find('.slot').remove();
+              $drag.css({left:0, top:0}).appendTo($target);
+              $target.attr('data-filled', $drag.data('id'));
+              updateScore();
+            }
+          });
+        $t.append($drop);
+      });
+    }
+
+    // ----- Scoring & controls ----- //
+    function updateScore(){
+      const total = PHASES.length;
+      let correct = 0;
+      $('.drop').each(function(){
+        const filled = $(this).attr('data-filled');
+        if(filled && filled === $(this).data('accept')) correct++;
+      });
+      $('#score').text(`Score: ${correct}/${total}`);
+      return correct;
+    }
+
+    function checkAnswers(){
+      $('.drop').each(function(){
+        const filled = $(this).attr('data-filled');
+        const ok = filled && filled === $(this).data('accept');
+        $(this).toggleClass('correct', !!ok)
+               .toggleClass('wrong', filled && !ok);
+      });
+    }
+
+    function showCorrect(){
+      // put each chip into its correct target
+      PHASES.forEach(p => {
+        const $drag   = $(`.drag[data-id="${p.id}"]`).first();
+        const $target = $(`.drop[data-accept="${p.id}"]`).first();
+        $target.find('.slot').remove();
+        // if target has something else, return it to bank
+        const $existing = $target.children('.drag').not($drag);
+        if($existing.length){ $existing.css({left:0, top:0}).appendTo('#bank'); }
+        $drag.css({left:0, top:0}).appendTo($target);
+        $target.attr('data-filled', p.id).addClass('correct').removeClass('wrong');
+      });
+      updateScore();
+    }
+
+    function resetAll(){
+      const $bank = $('#bank');
+      // return all chips to bank
+      $('.drag').each(function(){
+        $(this).css({left:0, top:0}).appendTo($bank);
+      });
+      // rebuild shuffled targets
+      renderTargets();
+      updateScore();
+    }
+
+    // ----- Init ----- //
+    $(function(){
+      renderTargets();
+      renderBank();
+
+      $('#shuffleBtn').on('click', function(){
+        renderTargets(); renderBank();
+      });
+      $('#resetBtn').on('click', resetAll);
+      $('#checkBtn').on('click', checkAnswers);
+      $('#showBtn').on('click', showCorrect);
+    });
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple Time Tracker</title>
+  <style>
+    :root {
+      --bg: #0f172a;           /* slate-900 */
+      --panel: #111827;        /* gray-900 */
+      --muted: #1f2937;        /* gray-800 */
+      --text: #e5e7eb;         /* gray-200 */
+      --subtle: #9ca3af;       /* gray-400 */
+      --accent: #22c55e;       /* green-500 */
+      --accent-2: #38bdf8;     /* sky-400 */
+      --warn: #f59e0b;         /* amber-500 */
+      --danger: #ef4444;       /* red-500 */
+      --ring: #334155;         /* slate-700 */
+    }
+
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg); color: var(--text);
+    }
+    header {
+      padding: 20px 16px; border-bottom: 1px solid var(--ring);
+      background: linear-gradient(180deg, #0b1224, #0f172a);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { margin: 0; font-size: 20px; letter-spacing: .3px }
+    header .sub { color: var(--subtle); font-size: 12px }
+
+    .container { max-width: 1100px; margin: 18px auto; padding: 0 16px }
+
+    .grid {
+      display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr);
+    }
+    .card { background: var(--panel); border: 1px solid var(--ring); border-radius: 14px; }
+    .card .body { padding: 16px }
+    .card h2 { margin: 0 0 12px; font-size: 16px }
+    .muted { color: var(--subtle) }
+
+    .controls { display: grid; gap: 12px; grid-template-columns: repeat(12, 1fr) }
+    .controls > * { grid-column: span 12 }
+
+    @media (min-width: 800px) {
+      .controls .col-6 { grid-column: span 6 }
+      .controls .col-4 { grid-column: span 4 }
+      .controls .col-3 { grid-column: span 3 }
+      .controls .col-2 { grid-column: span 2 }
+    }
+
+    label { display:block; font-size: 12px; color: var(--subtle); margin: 2px 0 6px }
+    select, input[type="text"], input[type="date"], textarea {
+      width: 100%; background: var(--muted); color: var(--text);
+      border: 1px solid var(--ring); border-radius: 10px; padding: 10px 12px; outline: none;
+    }
+    textarea { resize: vertical; min-height: 42px }
+
+    .row { display: flex; gap: 10px; align-items: center }
+
+    .btn {
+      background: #0b1224; color: var(--text); border: 1px solid var(--ring);
+      padding: 10px 12px; border-radius: 10px; cursor: pointer;
+      user-select: none; transition: transform .02s ease-in-out, border-color .2s ease;
+    }
+    .btn:hover { border-color: var(--accent-2) }
+    .btn:active { transform: translateY(1px) }
+    .btn.primary { background: var(--accent); border-color: #16a34a; color: #052e16; font-weight: 600 }
+    .btn.warn { background: var(--warn); border-color: #d97706; color: #451a03 }
+    .btn.danger { background: var(--danger); border-color: #dc2626; color: #450a0a }
+    .btn.ghost { background: transparent }
+
+    .timer { font-variant-numeric: tabular-nums; font-size: 40px; font-weight: 700 }
+    .pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ring); padding: 8px 10px; border-radius: 999px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px }
+    thead th { text-align: left; font-weight: 600; color: var(--subtle); padding: 8px 10px; border-bottom: 1px solid var(--ring) }
+    tbody td { padding: 10px; border-bottom: 1px solid var(--ring) }
+    tbody tr:hover { background: #0e162c }
+    .right { text-align: right }
+
+    .footer-actions { display:flex; gap:8px; flex-wrap: wrap; margin-top: 12px }
+
+    .totals { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px }
+    .totals .mini { background: var(--muted); border: 1px solid var(--ring); border-radius: 12px; padding: 10px }
+    .mini .k { font-size: 12px; color: var(--subtle) }
+    .mini .v { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px }
+
+    .tag { font-size: 11px; color: var(--subtle); background: #0b1224; border:1px solid var(--ring); padding:2px 8px; border-radius:999px }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Simple Time Tracker</h1>
+    <div class="sub">Offline • Single‑file • Saves to your browser (localStorage)</div>
+  </header>
+
+  <div class="container">
+
+    <!-- TOP: TIMER PANEL -->
+    <section class="card" aria-labelledby="timerTitle">
+      <div class="body">
+        <h2 id="timerTitle">Timer</h2>
+        <div class="controls">
+          <div class="col-4">
+            <label for="category">Category</label>
+            <select id="category"></select>
+          </div>
+          <div class="col-4">
+            <label for="subcategory">Subcategory</label>
+            <select id="subcategory"></select>
+          </div>
+          <div class="col-4">
+            <label for="newSubcat">Add subcategory (optional)</label>
+            <div class="row">
+              <input type="text" id="newSubcat" placeholder="e.g., Statistics, Bible Study, Cardio" />
+              <button class="btn" id="btnAddSub">Add</button>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" placeholder="What are you focusing on?"></textarea>
+          </div>
+          <div class="col-6">
+            <label>&nbsp;</label>
+            <div class="row" style="justify-content: space-between; gap: 12px; flex-wrap: wrap">
+              <div class="pill">
+                <span class="tag" id="statusTag">Idle</span>
+                <span class="timer" id="clock">00:00:00</span>
+              </div>
+              <div class="row" style="gap:8px; flex-wrap: wrap">
+                <button class="btn primary" id="btnStart">Start</button>
+                <button class="btn warn" id="btnPause">Pause</button>
+                <button class="btn" id="btnResume">Resume</button>
+                <button class="btn danger" id="btnStopSave">Stop & Save</button>
+                <button class="btn ghost" id="btnReset">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid" style="margin-top: 16px">
+      <!-- LEFT: LOG -->
+      <section class="card" style="grid-column: span 8" aria-labelledby="logTitle">
+        <div class="body">
+          <h2 id="logTitle">Log</h2>
+          <div class="controls" style="margin-bottom: 8px">
+            <div class="col-3">
+              <label for="filterFrom">From</label>
+              <input type="date" id="filterFrom" />
+            </div>
+            <div class="col-3">
+              <label for="filterTo">To</label>
+              <input type="date" id="filterTo" />
+            </div>
+            <div class="col-3">
+              <label for="filterCat">Filter: Category</label>
+              <select id="filterCat"><option value="">All</option></select>
+            </div>
+            <div class="col-3">
+              <label>&nbsp;</label>
+              <div class="row">
+                <button class="btn" id="btnApplyFilter">Apply</button>
+                <button class="btn ghost" id="btnClearFilter">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow:auto; max-height: 420px; border:1px solid var(--ring); border-radius: 10px">
+            <table id="logTable" aria-describedby="logCaption">
+              <caption id="logCaption" class="sr-only">Time entries</caption>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  <th>Category</th>
+                  <th>Subcategory</th>
+                  <th>Notes</th>
+                  <th class="right">Duration</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="logBody"></tbody>
+            </table>
+          </div>
+
+          <div class="footer-actions">
+            <button class="btn" id="btnExportCSV">Export CSV</button>
+            <button class="btn danger" id="btnClearAll">Clear All Entries</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: TOTALS / CATEGORIES -->
+      <section class="card" style="grid-column: span 4" aria-labelledby="totalsTitle">
+        <div class="body">
+          <h2 id="totalsTitle">Totals</h2>
+          <div class="totals" style="margin-bottom:10px">
+            <div class="mini">
+              <div class="k">Today</div>
+              <div class="v" id="todayTotal">0h 00m</div>
+            </div>
+            <div class="mini">
+              <div class="k">This Week</div>
+              <div class="v" id="weekTotal">0h 00m</div>
+            </div>
+          </div>
+
+          <h3 style="margin:16px 0 8px; font-size: 14px; color: var(--subtle)">By Category (All‑time)</h3>
+          <div id="byCategory"></div>
+
+          <hr style="border: none; border-top: 1px solid var(--ring); margin: 14px 0">
+
+          <h3 style="margin:0 0 8px; font-size: 14px; color: var(--subtle)">Manage Categories</h3>
+          <label for="newCategory">Add a category</label>
+          <div class="row">
+            <input type="text" id="newCategory" placeholder="e.g., Consulting, Admin" />
+            <button class="btn" id="btnAddCategory">Add</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+  // ===== Utility =====
+  const $ = (sel, ctx=document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+
+  const STORAGE_KEYS = {
+    categories: 'tt.categories.v1',
+    entries: 'tt.entries.v1',
+    timer: 'tt.timer.v1'
+  };
+
+  const DEFAULT_CATEGORIES = {
+    "School": ["General", "Statistics", "Lit Review", "Capstone", "Design Thinking"],
+    "Military Studies": ["General", "COA Development", "Doctrine", "Exam Prep"],
+    "Homeschool": ["General", "Math", "Reading", "Play-Based", "Planning"],
+    "Spiritual": ["General", "Prayer", "Bible Study", "Group Prep"],
+    "Personal": ["General", "Admin", "Errands", "Journaling"],
+    "Kids Play": ["General", "Outdoor", "Games"],
+    "Kids Training": ["General", "Sports", "Swim", "Chores/Discipline"],
+    "Workout": ["General", "Strength", "Cardio", "Mobility", "Surf"]
+  };
+
+  function loadCategories() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || structuredClone(DEFAULT_CATEGORIES); }
+    catch { return structuredClone(DEFAULT_CATEGORIES); }
+  }
+  function saveCategories(cats) {
+    localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(cats));
+  }
+
+  function loadEntries() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.entries)) || []; }
+    catch { return []; }
+  }
+  function saveEntries(entries) {
+    localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
+  }
+
+  function loadTimerState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.timer)) || null; }
+    catch { return null; }
+  }
+  function saveTimerState(state) {
+    localStorage.setItem(STORAGE_KEYS.timer, JSON.stringify(state));
+  }
+  function clearTimerState() { localStorage.removeItem(STORAGE_KEYS.timer); }
+
+  function hms(ms) {
+    const s = Math.max(0, Math.floor(ms/1000));
+    const hh = String(Math.floor(s/3600)).padStart(2,'0');
+    const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const ss = String(s%60).padStart(2,'0');
+    return `${hh}:${mm}:${ss}`;
+  }
+  function fmtDate(dt) {
+    const d = new Date(dt);
+    return d.toLocaleDateString();
+  }
+  function fmtTime(dt) {
+    const d = new Date(dt);
+    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+  function fmtDur(ms) {
+    const s = Math.floor(ms/1000);
+    const h = Math.floor(s/3600);
+    const m = Math.floor((s%3600)/60);
+    return `${h}h ${String(m).padStart(2,'0')}m`;
+  }
+
+  // ===== App State =====
+  let categories = loadCategories();
+  let entries = loadEntries();
+  let timer = {
+    isRunning: false,
+    start: null,
+    elapsed: 0,
+    category: null,
+    subcategory: null,
+    notes: ''
+  };
+  let tickInt = null;
+
+  // ===== DOM Elements =====
+  const elCategory = $('#category');
+  const elSubcategory = $('#subcategory');
+  const elNotes = $('#notes');
+  const elClock = $('#clock');
+  const elStatusTag = $('#statusTag');
+  const elLogBody = $('#logBody');
+  const elFilterFrom = $('#filterFrom');
+  const elFilterTo = $('#filterTo');
+  const elFilterCat = $('#filterCat');
+
+  // ===== Initialize =====
+  init();
+
+  function init() {
+    // Populate categories
+    renderCategorySelects();
+
+    // Restore timer state if any
+    const saved = loadTimerState();
+    if (saved) {
+      timer = saved;
+      elNotes.value = timer.notes || '';
+      if (timer.category && categories[timer.category]) {
+        elCategory.value = timer.category;
+        populateSubcats(timer.category);
+        if (timer.subcategory) elSubcategory.value = timer.subcategory;
+      }
+      if (timer.isRunning && timer.start) resumeTicking();
+      updateTimerUI();
+    }
+
+    // Render log and totals
+    renderLog();
+    renderTotals();
+
+    // Hook up events
+    $('#btnStart').addEventListener('click', onStart);
+    $('#btnPause').addEventListener('click', onPause);
+    $('#btnResume').addEventListener('click', onResume);
+    $('#btnStopSave').addEventListener('click', onStopSave);
+    $('#btnReset').addEventListener('click', onReset);
+
+    $('#btnExportCSV').addEventListener('click', exportCSV);
+    $('#btnClearAll').addEventListener('click', clearAllEntries);
+
+    $('#btnAddCategory').addEventListener('click', addCategory);
+    $('#btnAddSub').addEventListener('click', addSubcategory);
+
+    elCategory.addEventListener('change', () => {
+      populateSubcats(elCategory.value);
+      timer.category = elCategory.value;
+      timer.subcategory = $('#subcategory').value;
+      saveTimerState(timer);
+    });
+    elSubcategory.addEventListener('change', () => {
+      timer.subcategory = elSubcategory.value;
+      saveTimerState(timer);
+    });
+    elNotes.addEventListener('input', () => {
+      timer.notes = elNotes.value;
+      saveTimerState(timer);
+    });
+
+    $('#btnApplyFilter').addEventListener('click', renderLog);
+    $('#btnClearFilter').addEventListener('click', () => {
+      elFilterFrom.value = '';
+      elFilterTo.value = '';
+      elFilterCat.value = '';
+      renderLog();
+    });
+  }
+
+  function renderCategorySelects() {
+    elCategory.innerHTML = Object.keys(categories).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    // populate filter cat
+    elFilterCat.innerHTML = '<option value="">All</option>' + Object.keys(categories).map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    // populate subcats for first or current
+    const current = timer.category || Object.keys(categories)[0];
+    elCategory.value = current;
+    populateSubcats(current);
+  }
+
+  function populateSubcats(cat) {
+    const subs = categories[cat] || ['General'];
+    elSubcategory.innerHTML = subs.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+    if (subs.includes(timer.subcategory)) elSubcategory.value = timer.subcategory;
+    else elSubcategory.value = subs[0];
+  }
+
+  function addCategory() {
+    const input = $('#newCategory');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!categories[name]) categories[name] = ['General'];
+    saveCategories(categories);
+    input.value = '';
+    renderCategorySelects();
+  }
+
+  function addSubcategory() {
+    const input = $('#newSubcat');
+    const name = input.value.trim();
+    if (!name) return;
+    const cat = elCategory.value;
+    const list = categories[cat] || (categories[cat] = []);
+    if (!list.includes(name)) list.push(name);
+    saveCategories(categories);
+    input.value = '';
+    populateSubcats(cat);
+    elSubcategory.value = name;
+  }
+
+  // ===== Timer Controls =====
+  function onStart() {
+    if (timer.isRunning) return;
+    timer.isRunning = true;
+    timer.start = Date.now();
+    timer.elapsed = timer.elapsed || 0;
+    timer.category = elCategory.value;
+    timer.subcategory = elSubcategory.value;
+    timer.notes = elNotes.value.trim();
+    saveTimerState(timer);
+    resumeTicking();
+    updateTimerUI();
+  }
+
+  function resumeTicking() {
+    clearInterval(tickInt);
+    tickInt = setInterval(() => {
+      const runningMs = timer.isRunning && timer.start ? (Date.now() - timer.start) : 0;
+      elClock.textContent = hms(runningMs + (timer.elapsed||0));
+    }, 250);
+  }
+
+  function onPause() {
+    if (!timer.isRunning) return;
+    timer.elapsed += Date.now() - timer.start;
+    timer.isRunning = false;
+    timer.start = null;
+    saveTimerState(timer);
+    updateTimerUI();
+  }
+
+  function onResume() { if (!timer.isRunning) { onStart(); } }
+
+  function onStopSave() {
+    let duration = timer.elapsed;
+    if (timer.isRunning && timer.start) duration += (Date.now() - timer.start);
+    if (duration < 1000 * 30) { // under 30s safeguard
+      if (!confirm('This session is under 30 seconds. Save anyway?')) return;
+    }
+    const startTime = timer.isRunning && timer.start ? new Date(timer.start - timer.elapsed) : new Date(Date.now() - duration);
+    const endTime = new Date(startTime.getTime() + duration);
+
+    const entry = {
+      id: cryptoRandomId(),
+      start: startTime.toISOString(),
+      end: endTime.toISOString(),
+      durationMs: duration,
+      category: timer.category || elCategory.value,
+      subcategory: timer.subcategory || elSubcategory.value,
+      notes: (timer.notes || '').trim()
+    };
+    entries.unshift(entry);
+    saveEntries(entries);
+
+    // Reset timer
+    onReset();
+    renderLog();
+    renderTotals();
+  }
+
+  function onReset() {
+    timer.isRunning = false; timer.start = null; timer.elapsed = 0;
+    saveTimerState(timer); clearTimerState();
+    clearInterval(tickInt); elClock.textContent = '00:00:00';
+    updateTimerUI();
+  }
+
+  function updateTimerUI() {
+    $('#btnStart').disabled = timer.isRunning;
+    $('#btnPause').disabled = !timer.isRunning;
+    $('#btnResume').disabled = timer.isRunning;
+    $('#btnStopSave').disabled = (timer.elapsed===0 && !timer.isRunning);
+    $('#btnReset').disabled = (timer.elapsed===0 && !timer.isRunning);
+    elStatusTag.textContent = timer.isRunning ? 'Running' : (timer.elapsed>0 ? 'Paused' : 'Idle');
+    elStatusTag.style.background = timer.isRunning ? 'rgba(34,197,94,.15)' : '#0b1224';
+    elStatusTag.style.borderColor = timer.isRunning ? 'var(--accent)' : 'var(--ring)';
+  }
+
+  // ===== Log & Totals =====
+  function renderLog() {
+    const from = elFilterFrom.value ? new Date(elFilterFrom.value + 'T00:00:00') : null;
+    const to = elFilterTo.value ? new Date(elFilterTo.value + 'T23:59:59') : null;
+    const cat = elFilterCat.value || '';
+
+    const filtered = entries.filter(e => {
+      const start = new Date(e.start);
+      if (from && start < from) return false;
+      if (to && start > to) return false;
+      if (cat && e.category !== cat) return false;
+      return true;
+    });
+
+    elLogBody.innerHTML = filtered.map(e => `
+      <tr>
+        <td>${escapeHtml(fmtDate(e.start))}</td>
+        <td>${escapeHtml(fmtTime(e.start))}</td>
+        <td>${escapeHtml(fmtTime(e.end))}</td>
+        <td>${escapeHtml(e.category)}</td>
+        <td>${escapeHtml(e.subcategory)}</td>
+        <td>${escapeHtml(e.notes||'')}</td>
+        <td class="right">${escapeHtml(fmtDur(e.durationMs))}</td>
+        <td class="right">
+          <button class="btn ghost" title="Delete" onclick="deleteEntry('${e.id}')">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderTotals() {
+    // Today
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfDay); // Sunday-based week
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+    let todayMs = 0, weekMs = 0;
+    const byCat = new Map();
+
+    for (const e of entries) {
+      const d = new Date(e.start);
+      if (d >= startOfDay) todayMs += e.durationMs;
+      if (d >= startOfWeek) weekMs += e.durationMs;
+      byCat.set(e.category, (byCat.get(e.category)||0) + e.durationMs);
+    }
+
+    $('#todayTotal').textContent = fmtDur(todayMs);
+    $('#weekTotal').textContent = fmtDur(weekMs);
+
+    const list = [...byCat.entries()].sort((a,b) => b[1]-a[1]);
+    const html = list.length ? list.map(([cat,ms]) => `
+      <div class="row" style="justify-content: space-between; margin: 6px 0">
+        <div>${escapeHtml(cat)}</div>
+        <div class="muted">${escapeHtml(fmtDur(ms))}</div>
+      </div>
+    `).join('') : '<div class="muted">No data yet.</div>';
+    $('#byCategory').innerHTML = html;
+  }
+
+  function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    entries = entries.filter(e => e.id !== id);
+    saveEntries(entries);
+    renderLog();
+    renderTotals();
+  }
+  window.deleteEntry = deleteEntry; // expose for inline onclick
+
+  function exportCSV() {
+    const rows = [
+      ['Date','Start','End','Category','Subcategory','Notes','Duration (minutes)']
+    ];
+    for (const e of entries) {
+      const minutes = Math.round(e.durationMs/60000);
+      rows.push([
+        fmtDate(e.start), fmtTime(e.start), fmtTime(e.end), e.category, e.subcategory, (e.notes||'').replace(/\n/g,' '), String(minutes)
+      ]);
+    }
+    const csv = rows.map(r => r.map(cell => {
+      const needsQuote = /[",\n]/.test(cell);
+      let c = String(cell).replace(/"/g,'""');
+      return needsQuote ? `"${c}"` : c;
+    }).join(',')).join('\n');
+
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'time-tracker.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearAllEntries() {
+    if (!entries.length) return;
+    if (!confirm('This will permanently remove all saved entries. Continue?')) return;
+    entries = []; saveEntries(entries); renderLog(); renderTotals();
+  }
+
+  // ===== Helpers =====
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch]));
+  }
+  function cryptoRandomId() {
+    // Short, URL-safe id
+    if (window.crypto?.getRandomValues) {
+      const arr = new Uint8Array(8); crypto.getRandomValues(arr);
+      return btoa(String.fromCharCode(...arr)).replace(/[+/=]/g,'').slice(0,11);
+    }
+    return Math.random().toString(36).slice(2, 13);
+  }
+  </script>
+</body>
+</html>

@@ -63,14 +63,14 @@
   <h1>Design Thinking</h1>
 
   <nav>
-    <a href="index.html"> Home</a>
-    <a href="page2.html"> What is it?</a>
-    <a href="page3.html"> The 5 Phases</a>
-    <a href="page4.html"> Case Study</a>
-    <a href="page5.html"> Intro Course</a>
-    <a href="page6.html"> Post-Test</a>
-    <a href="page7.html"> Brainstorming Activity</a>
-    <a href="page8.html"> Resources</a>
+    <a href="index.html" class="active"> Home</a>
+    <a href="page2_5phases.html"> The 5 Phases</a>
+    <a href="page3_CaseStudy.html"> Case Study</a>
+    <a href="page4_IntroCourse.html"> Intro Course</a>
+    <a href="page5_PostTest.html"> Post-Test</a>
+    <a href="page6_BrainStorming.html"> Brainstorming Activity</a>
+    <a href="page7_Matching.html"> Matching</a>
+	<a href="page8_Resources.html"> Resources</a>
   </nav>
 
   <div class="homeIntro">
@@ -79,7 +79,25 @@
   </div>
 
   <div id="wrapper">
-    <!-- Card 1 -->
+	<!-- Card 1 -->
+	  <details class="step" open>
+		<summary class="stepTitle">What is Design Thinking?</summary>
+		<div class="stepContent">
+		  <!-- Responsive iframe container -->
+		  <div class="video-container">
+			<iframe
+			  src="https://www.youtube.com/embed/gnWj97CEjeo?si=2UDK1lzUJOs83_w1"
+			  title="YouTube video player"
+			  frameborder="0"
+			  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+			  referrerpolicy="strict-origin-when-cross-origin"
+			  allowfullscreen>
+			</iframe>
+		  </div>
+		  </div>
+    	</details>
+	  
+    <!-- Card 2 -->
     <details class="step" open>
       <summary class="stepTitle">Why Design Thinking Matters</summary>
       <div class="stepContent">
@@ -103,7 +121,7 @@
       </div>
     </details>
 
-    <!-- Card 2 -->
+    <!-- Card 3 -->
     <details class="step" open>
       <summary class="stepTitle">Where Traditional Problem-Solving Falls Short</summary>
       <div class="stepContent">
@@ -124,15 +142,36 @@
           <div class="audioMeta">Duration ~0:45</div>
         </div>
       </div>
-    </details>
+	  </details>
+		
+	
 	  
 		  <script>
+			  //Only one audio player runs at a time
 			  document.addEventListener('play', function (e) {
 				const media = document.querySelectorAll('audio, video');
 				media.forEach(el => {
 				  if (el !== e.target) el.pause();
 				});
 			  }, true);
+			  
+			  //Start all tiles closed
+			  document.addEventListener('DOMContentLoaded', () => {
+				document.querySelectorAll('details.step[open]').forEach(d => d.removeAttribute('open'));
+			  });
+			  
+			  //only one open at a time
+			  document.addEventListener('click', (e) => {
+				if (e.target.closest('summary')) {
+				  const current = e.target.closest('details.step');
+				  // Close others after a tick so the clicked one can toggle first
+				  setTimeout(() => {
+					document.querySelectorAll('details.step[open]').forEach(d => {
+					  if (d !== current) d.removeAttribute('open');
+					});
+				  }, 0);
+				}
+			  });
 		</script>
 	  	
   </div>

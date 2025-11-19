@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Thinking Match – jQuery UI Drag & Drop</title>
+  <!-- jQuery & jQuery UI (CDN) -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+  <style>
+    body{
+      margin:0; font-family: system-ui, sans-serif;
+      background:#0f172a; color:#e5e7eb;
+      min-height:100vh; padding:20px;
+    }
+    .app{ max-width:900px; margin:auto; }
+    h1{ font-size:26px; margin-bottom:10px }
+    .sub{ color:#94a3b8; margin-bottom:20px }
+
+    /* Layout: stacked */
+    .board{ display:flex; flex-direction:column; gap:24px; }
+
+    .bank{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+    .drag{ background:#1f2937; border:1px solid rgba(255,255,255,.2); padding:10px 14px; border-radius:10px; cursor:grab; font-weight:600; }
+    .drag.placed{ opacity:.7; cursor:not-allowed }
+
+    .drops{ display:grid; gap:14px; }
+    .drop{ background:#111827; border:2px dashed rgba(255,255,255,.2); border-radius:12px; padding:14px; min-height:70px; display:flex; flex-direction:column; justify-content:center; }
+    .drop.active{ border-color:#3b82f6; }
+    .drop.correct{ border-color:#22c55e; background:#064e3b; }
+
+    .slot{ margin-top:8px; padding:6px; background:rgba(255,255,255,.1); border-radius:8px; text-align:center; font-weight:600 }
+
+    .controls{ display:flex; gap:10px; margin-top:16px; justify-content:center; }
+    button{ padding:10px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:700 }
+    .primary{ background:#3b82f6; color:#fff }
+    .ghost{ background:#374151; color:#fff }
+    .score{ margin-left:auto }
+  </style>
+<link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<h1>Design Thinking</h1>
+	
+	<nav>
+	<a href="index.html"> Home</a>
+	<a href="page2.html"> What is it?</a>
+	<a href="page3.html"> The 5 Phases</a>
+	<a href="page4.html"> Case Study</a>
+	<a href="page5.html"> Intro Course</a>
+	<a href="page6.html"> Post-Test</a>	
+	<a href="page7.html"> Brainstorming Activity</a>
+	<a href="page8.html"> Resources</a>
+	</nav>
+	
+	<br><br>
+  <div class="app">
+    <h1>Match the 5 Phases of Design Thinking</h1>
+    <div class="sub">Drag each phase into the matching description below. Then click <strong>Check Answers</strong>.</div>
+
+    <div class="board">
+      <!-- Word bank on top -->
+      <div class="bank" id="bank"></div>
+
+      <!-- Descriptions below -->
+      <div class="drops" id="targets"></div>
+
+      <div class="controls">
+        <button class="ghost" id="shuffleBtn" type="button">Shuffle</button>
+        <button class="ghost" id="resetBtn" type="button">Reset</button>
+        <button class="primary" id="checkBtn" type="button">Check Answers</button>
+        <button class="ghost" id="showBtn" type="button">Show Correct</button>
+      </div>
+      <div class="score" id="score">Score: 0/5</div>
+    </div>
+  </div>
+
+  <script>
+    const PHASES = [
+      { id: 'empathize',  label: 'Empathize',  desc: 'Research users through interviews, observation, and context to understand needs, pain points, and emotions.' },
+      { id: 'define',     label: 'Define',     desc: 'Synthesize research into a clear problem statement (POV) and measurable design criteria.' },
+      { id: 'ideate',     label: 'Ideate',     desc: 'Generate many ideas without judgment; explore breadth with techniques like SCAMPER or Crazy 8s.' },
+      { id: 'prototype',  label: 'Prototype',  desc: 'Build quick, low-fidelity representations to explore solutions and learn fast.' },
+      { id: 'test',       label: 'Test',       desc: 'Evaluate prototypes with users; capture insights to iterate or pivot as needed.' }
+    ];
+
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i], arr[j]]=[arr[j], arr[i]] } return arr }
+
+    function renderBank(){
+      const $bank = $('#bank').empty();
+      const shuffled = shuffle([...PHASES]);
+      for(const p of shuffled){
+        $('<div/>',{ class:'drag', text:p.label, 'data-id':p.id }).appendTo($bank).draggable({
+          revert:'invalid', containment:'document', scroll:false, zIndex:1000
+        });
+      }
+      updateScore();
+    }
+
+    function renderTargets(){
+      const $t = $('#targets').empty();
+      const shuffledDefs = shuffle([...PHASES]);
+      for(const p of shuffledDefs){
+        $('<div/>',{ class:'drop','data-accept':p.id }).append(
+          $('<div/>',{ text:p.desc }),
+          $('<div/>',{ class:'slot', text:'Drop phase here' })
+        ).droppable({
+          accept: '.drag',
+          tolerance:'intersect',
+          over: function(){ $(this).addClass('active') },
+          out: function(){ $(this).removeClass('active') },
+          drop: function(event, ui){
+            const $drag = ui.draggable;
+            const target = $(this);
+            if(target.find('.drag').length===0){
+              target.removeClass('active');
+              target.find('.slot').remove();
+              $drag.position({ of: target, my:'left top', at:'left top' });
+              $drag.addClass('placed').draggable('disable').css({left:0, top:0});
+              target.append($drag);
+              target.attr('data-filled',$drag.data('id'));
+              updateScore();
+            }
+          }
+        }).appendTo($t);
+      }
+    }
+
+    function updateScore(){
+      const total = PHASES.length;
+      let correct = 0;
+      $('.drop').each(function(){
+        const filled = $(this).attr('data-filled');
+        if(filled && filled === $(this).data('accept')) correct++;
+      });
+      $('#score').text(`Score: ${correct}/${total}`);
+      return correct;
+    }
+
+    function checkAnswers(){
+      $('.drop').each(function(){
+        const filled = $(this).attr('data-filled');
+        if(filled && filled === $(this).data('accept')){
+          $(this).addClass('correct');
+        }
+      });
+    }
+
+    function showCorrect(){
+      resetAll();
+      PHASES.forEach(p => {
+        const $drag = $(`.drag[data-id="${p.id}"]`).first();
+        const $target = $(`.drop[data-accept="${p.id}"]`).first();
+        $target.find('.slot').remove();
+        $drag.addClass('placed').draggable('disable').css({left:0, top:0});
+        $target.append($drag).attr('data-filled', p.id).addClass('correct');
+      });
+      updateScore();
+    }
+
+    function resetAll(){
+      const $bank = $('#bank');
+      $('.drag').each(function(){
+        $(this).removeClass('placed').draggable('enable').css({left:0, top:0}).appendTo($bank);
+      });
+      renderTargets();
+      updateScore();
+    }
+
+    $(function(){
+      renderTargets();
+      renderBank();
+
+      $('#shuffleBtn').on('click', ()=>{ renderTargets(); renderBank(); });
+      $('#resetBtn').on('click', resetAll);
+      $('#checkBtn').on('click', checkAnswers);
+      $('#showBtn').on('click', showCorrect);
+    });
+  </script>
+</body>
+</html>
+

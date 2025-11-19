@@ -116,6 +116,19 @@ nav a:hover, nav a:focus-visible {
   background-color: var(--color-accent-soft);
 }
 
+/* nav a.active:hover, nav a.active:focus-visible {
+  color: var(--color-accent);
+  background-color: var(--color-accent-soft);
+} */
+
+/* Active page link (current page) */
+nav a.active {
+  background-color: #7f5700; /* subtle background to match accent tone */
+  color: #EFECE6; /* your requested text color */
+  font-weight: bold;
+}
+
+
 /* ==== Media Elements ==== */
 video {
   width: 100%;
@@ -136,13 +149,14 @@ video {
   overflow: hidden;
   box-shadow: inset 2px 2px 5px rgba(255,255,255,0.8), inset -2px -2px 5px rgba(0,0,0,0.25), 4px 4px 10px rgba(0,0,0,0.3);
 }
+
 summary.stepTitle {
   padding: 10px;
   text-align: center;
   background-color: var(--color-dark);
   color: var(--color-bg);
   font-weight: bold;
-  font-size: 175%;
+  font-size: 115%;
   cursor: pointer;
   list-style: none;
   position: relative;
@@ -260,5 +274,19 @@ a:focus-visible, button:focus-visible, .choices:focus-visible, summary.stepTitle
   summary.stepTitle { font-size: clamp(1.2rem, 5.5vw, 1.6rem); }
   nav a { font-size: 1rem; padding: 6px 10px; }
   .stepContent { padding: var(--space-2); }
+}
+
+#apa-bib {
+  list-style-type: none;        /* Removes bullets */
+  margin: 0;                    /* Removes top/bottom spacing */
+  padding: 0;                   /* Removes left indent */
+}
+
+#apa-bib li {
+  margin-bottom: 0.8em;         /* Adds spacing between entries */
+  padding-left: 0;              
+  text-indent: -0.5in;          /* Creates hanging indent */
+  margin-left: 0.5in;           /* Aligns first line properly */
+  line-height: 1.5;             /* APA-style line spacing */
 }
 

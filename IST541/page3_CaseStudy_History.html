@@ -10,17 +10,17 @@
 <body>
   <h1>Design Thinking</h1>
 
-		  <nav>
-			<a href="index.html"> Home</a>
-			<a href="page2.html"> What is it?</a>
-			<a href="page3.html"> The 5 Phases</a>
-			<a href="page4.html"> Case Study</a>
-			<a href="page5.html"> Intro Course</a>
-			<a href="page6.html"> Post-Test</a>
-			<a href="page7.html"> Brainstorming Activity</a>
-			<a href="page8.html"> Resources</a>
-		  </nav>
-
+	 <nav>
+		<a href="index.html"> Home</a>
+		<a href="page2_5phases.html"> The 5 Phases</a>
+		<a href="page3_CaseStudy.html" class="active"> Case Study</a>
+		<a href="page4_IntroCourse.html"> Intro Course</a>
+		<a href="page5_PostTest.html"> Post-Test</a>
+		<a href="page6_BrainStorming.html"> Brainstorming Activity</a>
+		<a href="page7_Matching.html"> Matching</a>
+		<a href="page8_Resources.html"> Resources</a>
+	  </nav>
+<br><br>
   <div id="wrapper">
     <h2>Case Study</h2>
 	  
@@ -33,12 +33,17 @@
 				   <track id="entrack" label="English subtitles" kind="captions" src="Video/SubarineCaseStudyCC.vtt" srclang="en" default>
 			HTML5 Video not supported
 		  </video>
-		  </div>
-		  </details>
+		  
+		  <!-- Continue to Step 1 -->
+				<div style="text-align:right; margin-top:10px;">
+				  <button class="btn" id="continue0" aria-label="Continue to Empathize section">Continue</button>
+				</div>
+			  </div>
+			</details>
 
 
     <!-- STEP 1 -->
-	  <details class="step" id="step1" open>
+	  <details class="step hidden" id="step1">
       <summary class="stepTitle">Empathize</summary>
       <div class="stepContent">
         <div class="stepImage">
@@ -60,7 +65,7 @@
             <li><strong>What does Success look like:</strong> Faster, more reliable turnover; fewer “did we check X?” call-backs.</li>
           </ul>
           <div style="text-align:right; margin-top:10px;">
-            <button class="btn" id="continue1" disabled>Continue</button>
+            <button class="btn" id="continue1" disabled aria-label="Continue to Define and Ideate section">Continue</button>
           </div>
         </div>
         </div>
@@ -86,7 +91,7 @@
 			<p><strong>Ideate:</strong>Through collaborative ideation sessions, participants brainstormed new ways to simplify data visualization and reduce cognitive load — focusing not on adding tools, but on improving usability. <i>(Hall, 2012, pp. 73–82)</i></p>
 			
           <div style="text-align:right; margin-top:10px;">
-            <button class="btn" id="continue2" disabled>Continue</button>
+            <button class="btn" id="continue2" disabled aria-label="Continue to Prototype and Test section">Continue</button>
           </div>
         </div>
         </div>
@@ -111,7 +116,7 @@
           </ul>
           <p>Leadership is open to whichever reduces cognitive load fastest within policy. What should you test first?</p>
           <div style="text-align:right; margin-top:10px;">
-            <button class="btn" id="continue3" disabled>Go to Quiz</button>
+            <button class="btn" id="continue3" disabled aria-label="Go to Quiz section">Go to Quiz</button>
           </div>
         </div>
         </div>
@@ -137,14 +142,14 @@
       <div id="feedback" style="margin-top:10px;"></div>
 
       <div style="text-align:right; margin-top:10px;">
-        <button class="btn hidden" id="continue4" disabled>Summary</button>
+        <button class="btn hidden" id="continue4" disabled aria-label="Continue to Conclusion section">Continue</button>
       </div>
     </div>
   </div>
 </details>
 
 	  
-	  <!--Summary-->
+	  <!--Conclusion-->
 	  <details class="step hidden" id="Conclusion">
       <summary class="stepTitle">Conclusion</summary>
       <div class="stepContent">
@@ -155,22 +160,28 @@
         <div class="stepDescription hidden" id="desc4" style="text-align: left;">
 			<p><strong>Iterative testing </strong> with sailors led to clean, modern displays that improved awareness and dramatically shortened the learning curve for new operators. The result demonstrated the power of Design Thinking in the military context — using <u>empathy</u>, <u>collaboration</u>, and <u>rapid prototyping</u> to solve complex human-technology challenges beneath the surface. <i>(Hall, 2012, pp. 79–87)</i></p>
           <div style="text-align:right; margin-top:10px;">
+			  
+			
+			<div style="text-align:right; margin-top:10px;">
+			  <button class="btn" id="continue5" disabled aria-label="Continue to Summary video">Summary</button>
+			</div>
           </div>
 		</div>
 	  </div>
     </details>
 	  
-	 <details class="step" id="summary video" open>
-      <summary class="stepTitle">Summary</summary>
-      <div class="stepContent">
-		  <video  controls>
-			<source src="Video/Defining_the_Core_Problem.mp4" type="video/mp4" />
-			<source src="Video/Defining_the_Core_Problem.webm" type="video/webm" />
-				   <track id="entrack" label="English subtitles" kind="captions" src="Video/Defining_the_Core_Problem.webm.vtt" srclang="en" default>
-			HTML5 Video not supported
-		  </video>
-		  </div>
-		  </details>
+	<!--Summary-->
+	<details class="step hidden" id="summary">
+	  <summary class="stepTitle">Summary</summary>
+	  <div class="stepContent">
+		<video controls>
+		  <source src="Video/Defining_the_Core_Problem.mp4" type="video/mp4" />
+		  <source src="Video/Defining_the_Core_Problem.webm" type="video/webm" />
+		  <track id="entrack_summary" label="English subtitles" kind="captions" src="Video/Defining_the_Core_Problem.webm.vtt" srclang="en" default>
+		  HTML5 Video not supported
+		</video>
+	  </div>
+	</details>
  
 	  
 	  
@@ -186,96 +197,131 @@
 </script>
 
   <script>
-    $(function(){
-      // Hover/focus/click reveal logic for each step image + dynamic hint update
-// Hover/focus/click reveal logic for each step image + optional hint behavior
-  function wireStep(imgSel, descSel, continueSel, nextTextOverride, hideHintAfterReveal=false){
-	  const $img  = $(imgSel);
-	  const $desc = $(descSel);
-	  const $cont = continueSel ? $(continueSel) : $();           // optional
-	  const $hint = $img.siblings('.signaling');                  // the small gray hint
+  $(function(){
+    // ---------- PERSISTENCE LAYER ----------
+    const KEY = 'cs_case_study_progress_v1';
+    const DEFAULT = {
+      // details open flags
+      step1Open:false, step2Open:false, step3Open:false, quizOpen:false, conclusionOpen:false, summaryOpen:false,
+      // description revealed flags
+      desc1:false, desc2:false, desc3:false, desc4:false,
+      // continue buttons enabled
+      c1:false, c2:false, c3:false, c4:false, c5:false,
+      // quiz state
+      quizPassed:false, quizChoice:null
+    };
 
-  function nextHintText(){
-    const label = nextTextOverride || ($cont.length ? ($cont.text().trim() || 'Continue') : '');
-    return label ? `Click ${label} to proceed` : `Continue`;
-  }
+    function loadState(){
+      try { return Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || '{}')); }
+      catch(e){ return {...DEFAULT}; }
+    }
+    function saveState(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
 
-  function reveal(){
-    const wasHidden = $desc.hasClass('hidden');
-    if (wasHidden){
-      $desc.hide().removeClass('hidden').slideDown(200);
-      if ($cont.length && $cont.closest('details')[0] === $img.closest('details')[0]) {
-        $cont.prop('disabled', false);
+    let S = loadState();
+
+    // ---------- EXISTING BEHAVIOR + PROGRESS SAVE ----------
+    function wireStep(imgSel, descSel, continueSel, nextTextOverride, hideHintAfterReveal=false){
+      const $img  = $(imgSel);
+      const $desc = $(descSel);
+      const $cont = continueSel ? $(continueSel) : $();
+      const $hint = $img.siblings('.signaling');
+
+      function nextHintText(){
+        const label = nextTextOverride || ($cont.length ? ($cont.text().trim() || 'Continue') : '');
+        return label ? `Click ${label} to proceed` : `Continue`;
+      }
+
+      function reveal(){
+        const wasHidden = $desc.hasClass('hidden');
+        if (wasHidden){
+          $desc.hide().removeClass('hidden').slideDown(200);
+          if ($cont.length && $cont.closest('details')[0] === $img.closest('details')[0]) {
+            $cont.prop('disabled', false);
+          }
+          // persist which desc was revealed + which button enabled
+          if (descSel === '#desc1'){ S.desc1 = true; S.c1 = true; }
+          if (descSel === '#desc2'){ S.desc2 = true; S.c2 = true; }
+          if (descSel === '#desc3'){ S.desc3 = true; S.c3 = true; }
+          if (descSel === '#desc4'){ S.desc4 = true; S.c5 = true; } 
+          saveState(S);
+        }
+        if ($hint.length){
+          if (hideHintAfterReveal) { $hint.addClass('hidden'); }
+          else { $hint.text(nextHintText()); }
+        }
+      }
+
+      $img.on('mouseenter focus click', function(e){ e.preventDefault(); reveal(); });
+    }
+
+    wireStep('#img1', '#desc1', '#continue1');          
+    wireStep('#img2', '#desc2', '#continue2');          
+    wireStep('#img3', '#desc3', '#continue3');          
+    wireStep('#img5', '#desc4', '#continue5', 'Summary', true); 
+
+    function openAndScroll(detailsId, stateFlagKey){
+      const el = document.getElementById(detailsId);
+      if (el){
+        $(el).removeClass('hidden')[0].open = true;
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+        document.activeElement.blur();
+        if (stateFlagKey){ S[stateFlagKey] = true; saveState(S); }
       }
     }
-    if ($hint.length){
-      if (hideHintAfterReveal) {
-        $hint.addClass('hidden');            // <-- hide it completely for this step
-      } else {
-        $hint.text(nextHintText());          // <-- keep the CTA text for other steps
-      }
+
+    $('#continue0').on('click', function(){ openAndScroll('step1', 'step1Open'); });
+    $('#continue1').on('click', function(){ openAndScroll('step2', 'step2Open'); });
+    $('#continue2').on('click', function(){ openAndScroll('step3', 'step3Open'); });
+    $('#continue3').on('click', function(){ openAndScroll('quiz', 'quizOpen'); });
+    $('#continue4').on('click', function(){ openAndScroll('Conclusion', 'conclusionOpen'); });
+    $('#continue5').on('click', function(){ openAndScroll('summary', 'summaryOpen'); });
+
+    const CORRECT = 'B';
+    $('.choices')
+      .attr('tabindex', 0)
+      .attr('role', 'button')
+      .on('click keypress', function(e){
+        if(e.type === 'keypress' && e.which !== 13 && e.which !== 32) return;
+        const choice = $(this).data('choice');
+        if(!choice) return;
+
+        $('#feedback').empty();
+
+        if(choice === CORRECT){
+          $('#feedback').html("<h2 style='text-align:left;'>Correct! Nice reasoning.</h2>");
+          $('.choices').off('click keypress').css('pointer-events','none');
+          $('#continue4').removeClass('hidden').prop('disabled', false);
+          S.quizPassed = true; S.quizChoice = choice; S.c4 = true; saveState(S);
+        } else {
+          $('#feedback').html("<h2 style='text-align:left;'>Not quite. Re-read the background and connect to user needs.</h2>");
+          S.quizPassed = false; S.quizChoice = choice; saveState(S);
+        }
+      });
+
+    // ---------- RESTORE ON PAGE LOAD ----------
+    function restoreDetailsOpen(id, flag){ if (flag){ $('#'+id).removeClass('hidden')[0].open = true; } }
+    function restoreDesc(selector, flag){ if (flag){ $(selector).removeClass('hidden').show(); } }
+    function restoreBtn(selector, flag){ if (flag){ $(selector).prop('disabled', false).removeClass('hidden'); } }
+
+    restoreDetailsOpen('step1', S.step1Open);
+    restoreDetailsOpen('step2', S.step2Open);
+    restoreDetailsOpen('step3', S.step3Open);
+    restoreDetailsOpen('quiz', S.quizOpen);
+    restoreDetailsOpen('Conclusion', S.conclusionOpen);
+    restoreDetailsOpen('summary', S.summaryOpen);
+
+    restoreDesc('#desc1', S.desc1); restoreBtn('#continue1', S.c1);
+    restoreDesc('#desc2', S.desc2); restoreBtn('#continue2', S.c2);
+    restoreDesc('#desc3', S.desc3); restoreBtn('#continue3', S.c3);
+    restoreDesc('#desc4', S.desc4); restoreBtn('#continue5', S.c5);
+
+    if (S.quizPassed){
+      $('#feedback').html("<h2 style='text-align:left;'>Correct! Nice reasoning.</h2>");
+      $('#continue4').removeClass('hidden').prop('disabled', false);
+      $('.choices').css('pointer-events','none').off('click keypress');
     }
-  }
+  });
+</script>
 
-  $img.on('mouseenter focus click', function(e){ e.preventDefault(); reveal(); });
-}
-
-
- 	wireStep('#img1', '#desc1', '#continue1');          // shows "Click Continue to continue"
-	wireStep('#img2', '#desc2', '#continue2');          // shows "Click Continue to continue"
-	wireStep('#img3', '#desc3', '#continue3');          // shows "Click Go to Quiz to continue"
-	wireStep('#img5', '#desc4', null, 'Summary', true); // hides the hint after reveal
-
-      // Continue buttons progressively show the next <details>
-      $('#continue1').on('click', function(){
-        $('#step2').removeClass('hidden')[0].open = true;
-        document.getElementById('step2').scrollIntoView({behavior:'smooth', block:'start'});
-      });
-      $('#continue2').on('click', function(){
-        $('#step3').removeClass('hidden')[0].open = true;
-        document.getElementById('step3').scrollIntoView({behavior:'smooth', block:'start'});
-      });
-      $('#continue3').on('click', function(){
-        $('#quiz').removeClass('hidden')[0].open = true;
-        document.getElementById('quiz').scrollIntoView({behavior:'smooth', block:'start'});
-	  });
-	  $('#continue4').on('click', function(){
-        $('#quiz').removeClass('hidden')[0].open = true;
-        document.getElementById('quiz').scrollIntoView({behavior:'smooth', block:'start'});
-      });
-
-      // Quiz behavior
-		const CORRECT = 'B';
-		$('.choices').on('click keypress', function(e){
-		  if(e.type === 'keypress' && e.which !== 13 && e.which !== 32) return; // Enter/Space
-		  const choice = $(this).data('choice');
-		  if(!choice) return;
-
-		  // Clear any previous feedback
-		  $('#feedback').empty();
-
-		  if(choice === CORRECT){
-			// Mark feedback + reveal final block
-			$('#feedback').html("<h2 style='color:green; text-align:left;'>Correct! Nice reasoning.</h2>");
-			$('#finalBlock').removeClass('hidden');
-
-			// Disable further answer clicks
-			$('.choices').off('click keypress').css('pointer-events','none');
-
-			// ✅ Reveal the Summary button and enable it
-			$('#continue4').removeClass('hidden').prop('disabled', false);
-		  } else {
-			$('#feedback').html("<h2 style='color:#b00020; text-align:left;'>Not quite. Re-read the background and connect to user needs.</h2>");
-		  }
-		});
-
-		// ✅ Wire the Summary button to reveal the Conclusion section
-		$('#continue4').on('click', function(){
-		  $('#Conclusion').removeClass('hidden')[0].open = true;
-		  document.getElementById('Conclusion').scrollIntoView({ behavior: 'smooth', block: 'start' });
-		});
-
-    });
-  </script>
 </body>
 </html>
