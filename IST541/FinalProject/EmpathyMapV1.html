@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EmpathyMapping</title>
+  <!-- Use your existing site stylesheet + variables -->
+  <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
+  <style>
+    /* ====== Scoped styles (lean, inherits your palette/typography) ====== */
+    :root{
+      /* semantic sticky hues (keep contrast high; align to earlier plan) */
+      --say:   #FFF176;   /* yellow */
+      --think: #AED581;   /* green  */
+      --feel:  #EF9A9A;   /* red    */
+      --do:    #81D4FA;   /* blue   */
+      --hint:  #FFD54F;   /* gold glow */
+    }
+    #wrapper{ width:min(100%, var(--container-max)); margin:0 auto; }
+    .lab-grid{
+      display:grid; gap:16px;
+      grid-template-columns: 380px 1fr;
+      align-items:start;
+    }
+    /* Left: raw data list */
+    .raw-pane{
+      border:3px solid var(--color-accent);
+      border-radius: var(--radius-lg);
+      background: var(--color-accent-soft);
+      max-height: 76vh; overflow:auto; padding:8px;
+    }
+    .raw-item{
+      text-align:left;
+      background: var(--color-bg);
+      border:2px solid var(--color-accent);
+      border-radius: 10px;
+      padding:10px 12px;
+      margin:8px 6px;
+      cursor:pointer;
+    }
+    .raw-item .meta{ color:var(--color-muted); font-size:.9rem; margin-top:6px;}
+    .raw-item.done{ opacity:.65; }
+    .raw-item .status{ float:right; font-weight:700; color:var(--color-accent); }
+
+    /* Right: empathy board */
+    .board{
+      border:3px solid var(--color-accent);
+      border-radius: var(--radius-lg);
+      background: var(--color-bg);
+      padding:8px;
+      min-height:70vh;
+    }
+    .quad-grid{
+      display:grid; gap:10px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: minmax(200px, 1fr) minmax(200px, 1fr);
+      min-height:60vh;
+    }
+    .quad{
+      border:2px dashed var(--color-accent);
+      border-radius: 12px;
+      padding:8px;
+      display:flex; flex-direction:column; gap:8px;
+      overflow:auto; background:var(--color-accent-soft);
+    }
+    .quad h3{
+      margin:0; padding:6px 8px; border-radius: 10px;
+      color:#222; font-size:1rem; text-align:left; display:flex; align-items:center; gap:8px;
+      background:#fff;
+    }
+    .quad h3 .chip{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:22px; height:22px; border-radius:6px; font-size:.85rem; font-weight:800;
+    }
+    .quad[data-type="SAY"]   h3 .chip{ background:var(--say); }
+    .quad[data-type="THINK"] h3 .chip{ background:var(--think); }
+    .quad[data-type="FEEL"]  h3 .chip{ background:var(--feel); }
+    .quad[data-type="DO"]    h3 .chip{ background:var(--do); }
+
+    .sticky{
+      text-align:left; background:#fff;
+      border-radius:10px; padding:8px 10px; border:1px solid #c9c2ae;
+      box-shadow: 0 1px 0 rgba(0,0,0,.06);
+    }
+    .sticky .tag{
+      font-weight:800; font-size:.8rem; margin-right:6px;
+      padding:2px 6px; border-radius:6px;
+    }
+    .sticky[data-cat="SAY"]   .tag{ background:var(--say); }
+    .sticky[data-cat="THINK"] .tag{ background:var(--think); }
+    .sticky[data-cat="FEEL"]  .tag{ background:var(--feel); }
+    .sticky[data-cat="DO"]    .tag{ background:var(--do); }
+    .sticky.draft{ opacity:.6; }
+    .sticky.hint-used{ box-shadow: 0 0 6px var(--hint); }
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0; background:rgba(0,0,0,.35);
+      display:none; align-items:center; justify-content:center; z-index:9999;
+      padding:16px;
+    }
+    .modal-card{
+      width:min(1000px, 96vw);
+      background:var(--color-bg); border:3px solid var(--color-accent);
+      border-radius: 16px; padding:14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+    .modal-head{ text-align:left; margin-bottom:8px; }
+    .modal-head .snippet{
+      background:#fff; border:1px solid #c9c2ae; border-radius:10px; padding:10px; line-height:1.5;
+    }
+    .edit-grid{ display:grid; gap:10px; grid-template-columns: repeat(4, 1fr); margin-top:10px; }
+    .edit-col{
+      background:var(--color-accent-soft);
+      border:2px dashed var(--color-accent); border-radius:12px; padding:8px;
+      display:flex; flex-direction:column; gap:8px; min-height: 200px; overflow:auto;
+    }
+    .edit-col h4{
+      margin:0; font-size:1rem; display:flex; align-items:center; gap:8px;
+      background: #fff; padding:6px 8px; border-radius:10px;
+    }
+    .edit-col .btn-add{
+      border:2px solid var(--color-accent); background:var(--color-bg); color:var(--color-ink);
+      border-radius: 10px; padding:6px 8px; font-weight:700; cursor:pointer;
+    }
+    .draft-card{
+      background:#fff; border:1px solid #c9c2ae; border-radius:10px; padding:6px; display:flex; flex-direction:column; gap:6px;
+    }
+    .draft-card textarea{
+      width:100%; min-height:70px; resize:vertical; border:1px solid #d6d0c0; border-radius:8px; padding:6px;
+      font-family: var(--font-body); font-size:0.98rem;
+    }
+    .draft-actions{ display:flex; gap:6px; justify-content:space-between; }
+    .hint-btn{ border:1px dashed var(--color-accent); background:#fffbe6; border-radius:8px; padding:4px 8px; cursor:pointer; }
+    .save-btn{ border:2px solid var(--color-accent); background:var(--color-bg); border-radius:8px; padding:4px 8px; font-weight:700; }
+    .modal-foot{ display:flex; justify-content:flex-end; gap:10px; margin-top:12px; }
+    .done-btn{ border:2px solid var(--color-accent); background:var(--color-bg); padding:8px 12px; border-radius:10px; font-weight:800; }
+    .discard-btn{ border:2px dashed var(--color-accent); background:#fff; padding:8px 12px; border-radius:10px; }
+
+    /* Tutorial overlay */
+    .tutor{
+      position:fixed; inset:0; background:rgba(0,0,0,.5);
+      display:none; align-items:center; justify-content:center; z-index:10000; padding:16px;
+    }
+    .tutor-card{
+      width:min(860px, 96vw); background:var(--color-bg); border:3px solid var(--color-accent);
+      border-radius:16px; padding:16px;
+    }
+    .tutor-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  </style>
+</head>
+<body>
+  <h1>Design Thinking</h1>
+  <nav>
+    <a href="index.html"> Home</a>
+    <a href="page2_5phases.html"> The 5 Phases</a>
+    <a href="page3_CaseStudy.html"> Case Study</a>
+    <a href="page4_IntroCourse.html"> Intro Course</a>
+    <a href="page5_PostTest.html"> Post-Test</a>
+    <a href="page6_Brainstorming.html"> Brainstorming Activity</a>
+    <a href="page7_Matching.html"> Matching</a>
+    <a href="page9_EmpathyLab.html" class="active"> Empathy Lab</a>
+    <a href="page8_Resources.html"> Resources</a>
+  </nav>
+
+  <div id="wrapper">
+    <h1>Empathy Mapping Lab</h1>
+    <div class="sub">Click a raw data snippet on the left. In the pop-up, add one or more sticky notes for what the user <strong>Says</strong>, <strong>Thinks</strong>, <strong>Feels</strong>, and <strong>Does</strong>. Press <strong>Done</strong> to place your stickies on the board.</div>
+
+    <div class="lab-grid">
+      <!-- LEFT: raw data -->
+      <aside class="raw-pane" id="rawList" aria-label="Raw data list"></aside>
+
+      <!-- RIGHT: empathy whiteboard -->
+      <section class="board">
+        <div class="quad-grid" id="board">
+          <div class="quad" data-type="SAY">
+            <h3><span class="chip">S</span> Says</h3>
+            <div class="drop" data-quad="SAY"></div>
+          </div>
+          <div class="quad" data-type="THINK">
+            <h3><span class="chip">T</span> Thinks</h3>
+            <div class="drop" data-quad="THINK"></div>
+          </div>
+          <div class="quad" data-type="FEEL">
+            <h3><span class="chip">F</span> Feels</h3>
+            <div class="drop" data-quad="FEEL"></div>
+          </div>
+          <div class="quad" data-type="DO">
+            <h3><span class="chip">D</span> Does</h3>
+            <div class="drop" data-quad="DO"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Synthesis Modal -->
+  <div class="modal" id="synthModal" role="dialog" aria-modal="true" aria-labelledby="synthTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="synthTitle" style="text-align:left; margin:0 0 8px;">Synthesize this raw data</h2>
+        <div class="snippet" id="modalSnippet"></div>
+      </div>
+      <div class="edit-grid">
+        <!-- Four columns generated by JS -->
+      </div>
+      <div class="modal-foot">
+        <button class="discard-btn" id="discardBtn" type="button">Discard changes</button>
+        <button class="done-btn" id="doneBtn" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial Overlay -->
+  <div class="tutor" id="tutorial">
+    <div class="tutor-card">
+      <h2 style="margin-top:0">Welcome to the Empathy Mapping Lab</h2>
+      <p style="text-align:left">
+        You’ll turn raw observations into sticky notes that capture what people <strong>Say</strong>, <strong>Think</strong>, <strong>Feel</strong>, and <strong>Do</strong>. Here are two quick examples.
+      </p>
+      <ol style="text-align:left">
+        <li><em>Quote</em> → Adds a <strong style="background:var(--say); padding:2px 6px; border-radius:6px">Say</strong> note and a <strong style="background:var(--think); padding:2px 6px; border-radius:6px">Think</strong> note.</li>
+        <li><em>Observation</em> → Adds a <strong style="background:var(--do); padding:2px 6px; border-radius:6px">Do</strong> note and a <strong style="background:var(--feel); padding:2px 6px; border-radius:6px">Feel</strong> note.</li>
+      </ol>
+      <div class="tutor-actions">
+        <button class="btn" id="demoBtn" type="button">▶ Play 2-example demo</button>
+        <button class="btn" id="skipBtn" type="button">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================
+       Data + State
+       ============================ */
+    const RAW_SNIPPETS = [
+      // 20 raw snippets (from our previous bank)
+      {id:'s1', type:'quote', text:`“We’re all for professional development, but PME doesn’t really prepare us for what we deal with in the unit. It feels disconnected — like theory for theory’s sake.”`},
+      {id:'s2', type:'observation', text:`During small-group discussion, only one Marine spoke while others stared at the floor. When prompted, one said quietly, “We already covered this at Corporals Course.”`},
+      {id:'s3', type:'chat', text:`“I actually like learning new leadership ideas, but every time I get back to my shop, it’s ‘just do it the old way.’ So what’s the point?”`},
+      {id:'s4', type:'debrief', text:`40% of students submitted reflection assignments late. Multiple participants wrote, “I didn’t know what you wanted.”`},
+      {id:'s5', type:'quote', text:`“The instructors mean well, but sometimes they talk at us, not to us. It’s like they assume we’re blank slates.”`},
+      {id:'s6', type:'observation', text:`Several Marines seemed engaged during the case study but lost focus once the lecture resumed. Two whispered about the next field evolution.`},
+      {id:'s7', type:'survey', text:`“It’s not bad training, just not relevant. We’re sitting here learning about strategic leadership when I’m trying to fix the barracks Wi-Fi and man the duty roster.”`},
+      {id:'s8', type:'reflection', text:`“If PME was more about problem-solving real unit issues, I’d be all in. Right now, it’s like I’m just learning to pass the test.”`},
+      {id:'s9', type:'instructor', text:`When asked, “What problems are you seeing in your unit?”, the room went silent for ten seconds before someone said, “We’re not supposed to talk about that stuff here.”`},
+      {id:'s10', type:'focus', text:`“Our generation gets a bad rap for being lazy, but maybe we just learn differently. We want to understand the ‘why,’ not just memorize the ‘what.’”`},
+      {id:'s11', type:'observation', text:`Several NCOs stayed after class joking about the slides. One said, “We could teach this better ourselves.” They laughed, but tone suggested frustration more than humor.`},
+      {id:'s12', type:'chat', text:`“You can tell who’s just trying to get through it. Nobody wants to look dumb in front of the Gunny, so we just play along.”`},
+      {id:'s13', type:'command', text:`“We give Marines every opportunity to grow, but some just don’t take it seriously. We can’t hold their hand through every course.”`},
+      {id:'s14', type:'observation', text:`The same two students answered all instructor questions. Others appeared disengaged — arms crossed, minimal eye contact.`},
+      {id:'s15', type:'survey', text:`“The best part was the group discussion. I wish there was more of that.”`},
+      {id:'s16', type:'journal', text:`“I started the online PME but lost motivation halfway. I didn’t feel like it was helping me become a better leader — just checking boxes.”`},
+      {id:'s17', type:'leadership', text:`“We’ve been told to ‘modernize PME’ but no one’s really defined what that means. Everyone wants innovation, but we’re still grading PowerPoints.”`},
+      {id:'s18', type:'observation', text:`When the instructor mentioned “design thinking,” a few Marines rolled their eyes. One whispered, “That’s for civilians.”`},
+      {id:'s19', type:'facilitator', text:`During the empathy-mapping mini-exercise, many participants expressed surprise that “being heard” was considered part of leadership.`},
+      {id:'s20', type:'comment', text:`“I got a lot out of today. It just makes me mad we need a special course to talk honestly about problems everyone already knows exist.”`},
+    ];
+
+    const CATS = ["SAY","THINK","FEEL","DO"];
+    const HINTS = {
+      "SAY": "Capture literal or near-literal language. Short quotes or paraphrases are great.",
+      "THINK": "Infer beliefs or assumptions behind the words/behavior. What’s the internal story?",
+      "FEEL": "Name the emotion + (optional) a brief cause. e.g., “Frustrated because ___”.",
+      "DO": "Only observable actions. What did they do (or not do)?"
+    };
+
+    // Session state in memory (persistable to localStorage if desired)
+    const stickies = []; // {id, snippetId, cat, text, hintUsed, createdAt}
+    const touched  = new Set(); // snippet ids touched this session
+
+    /* ============================
+       Render: RAW LIST + BOARD
+       ============================ */
+    const $raw = document.getElementById('rawList');
+    const $board = {
+      SAY:   document.querySelector('.drop[data-quad="SAY"]'),
+      THINK: document.querySelector('.drop[data-quad="THINK"]'),
+      FEEL:  document.querySelector('.drop[data-quad="FEEL"]'),
+      DO:    document.querySelector('.drop[data-quad="DO"]')
+    };
+
+    function renderRawList(){
+      $raw.innerHTML = "";
+      RAW_SNIPPETS.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'raw-item' + (touched.has(s.id) ? ' done' : '');
+        card.dataset.id = s.id;
+        card.innerHTML = `
+          <div><strong>${labelForType(s.type)}</strong> <span class="status">${touched.has(s.id)?'✓':''}</span></div>
+          <div>${escapeHtml(s.text)}</div>
+          <div class="meta">Click to synthesize</div>`;
+        card.onclick = () => openModal(s.id);
+        $raw.appendChild(card);
+      });
+    }
+    function labelForType(t){
+      return ({quote:"Interview", observation:"Observation", chat:"Informal", survey:"Survey", debrief:"Debrief",
+               instructor:"Instructor Note", focus:"Focus Group", command:"Command Perspective",
+               journal:"Journal", leadership:"Leadership Debrief", facilitator:"Facilitator Note",
+               comment:"Comment"})[t] || "Note";
+    }
+
+    function renderBoard(){
+      // Clear all quad drops, then render
+      CATS.forEach(cat => $board[cat].innerHTML = "");
+      stickies.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'sticky';
+        el.dataset.cat = s.cat;
+        if (s.hintUsed) el.classList.add('hint-used');
+        el.innerHTML = `<div><span class="tag">${s.cat[0]}</span>${escapeHtml(s.text)}</div>`;
+        $board[s.cat].appendChild(el);
+      });
+    }
+
+    /* ============================
+       Modal: Synthesis
+       ============================ */
+    const modal = document.getElementById('synthModal');
+    const modalSnippet = document.getElementById('modalSnippet');
+    const editGrid = document.querySelector('.edit-grid');
+    const doneBtn = document.getElementById('doneBtn');
+    const discardBtn = document.getElementById('discardBtn');
+
+    let activeSnippet = null;
+    let draftByCat = {}; // cat -> [{text, hintUsed}]
+
+    function openModal(snippetId){
+      activeSnippet = RAW_SNIPPETS.find(s => s.id === snippetId);
+      draftByCat = {SAY:[], THINK:[], FEEL:[], DO:[]};
+      modalSnippet.textContent = activeSnippet.text;
+      buildEditColumns();
+      modal.style.display = 'flex';
+    }
+    function closeModal(){
+      modal.style.display = 'none';
+      activeSnippet = null;
+      draftByCat = {};
+    }
+
+    function buildEditColumns(){
+      editGrid.innerHTML = "";
+      CATS.forEach(cat => {
+        const col = document.createElement('div');
+        col.className = 'edit-col'; col.dataset.cat = cat;
+        col.innerHTML = `<h4><span class="chip" style="background:${chipColor(cat)}"></span> ${nice(cat)}</h4>`;
+        const add = document.createElement('button');
+        add.className = 'btn-add';
+        add.textContent = `+ Add ${nice(cat)} note`;
+        add.onclick = ()=> addDraftCard(cat, col);
+        col.appendChild(add);
+        editGrid.appendChild(col);
+      });
+    }
+
+    function addDraftCard(cat, col){
+      const wrap = document.createElement('div');
+      wrap.className = 'draft-card';
+      wrap.innerHTML = `
+        <textarea placeholder="Write a ${nice(cat)} note for this snippet..."></textarea>
+        <div class="draft-actions">
+          <button class="hint-btn" type="button">? Hint</button>
+          <div style="flex:1"></div>
+          <button class="save-btn" type="button">Save</button>
+        </div>`;
+      const ta = wrap.querySelector('textarea');
+      const hintBtn = wrap.querySelector('.hint-btn');
+      const saveBtn = wrap.querySelector('.save-btn');
+      let hintUsed = false;
+
+      hintBtn.onclick = ()=>{
+        alert(HINTS[cat]);
+        hintUsed = true;
+        wrap.style.boxShadow = `0 0 6px var(--hint)`;
+      };
+      saveBtn.onclick = ()=>{
+        const text = (ta.value || "").trim();
+        if(!text){ ta.focus(); return; }
+        // push into draft list AND global stickies immediately
+        draftByCat[cat].push({text, hintUsed});
+        stickies.push({
+          id: 'k' + Math.random().toString(36).slice(2),
+          snippetId: activeSnippet.id,
+          cat, text, hintUsed, createdAt: Date.now()
+        });
+        // visual feedback & lock
+        wrap.innerHTML = `<div class="sticky ${hintUsed?'hint-used':''}" data-cat="${cat}">
+            <div><span class="tag">${cat[0]}</span>${escapeHtml(text)}</div>
+          </div>`;
+        renderBoard();
+      };
+      col.appendChild(wrap);
+      ta.focus();
+    }
+
+    // Done/discard buttons
+    doneBtn.onclick = ()=>{
+      if(activeSnippet) touched.add(activeSnippet.id);
+      closeModal();
+      renderRawList();
+      renderBoard();
+    };
+    discardBtn.onclick = ()=>{
+      // remove any stickies added during this modal session
+      if(activeSnippet){
+        CATS.forEach(cat=>{
+          const adds = new Set(draftByCat[cat].map(d => d.text));
+          if(adds.size){
+            for(let i=stickies.length-1;i>=0;i--){
+              if(stickies[i].snippetId===activeSnippet.id && adds.has(stickies[i].text)){
+                stickies.splice(i,1);
+              }
+            }
+          }
+        });
+      }
+      closeModal();
+      renderBoard();
+    };
+
+    /* ============================
+       Tutorial
+       ============================ */
+    const tutorial = document.getElementById('tutorial');
+    const demoBtn = document.getElementById('demoBtn');
+    const skipBtn = document.getElementById('skipBtn');
+
+    function showTutorialOnce(){
+      const seen = localStorage.getItem('empathy_tutorial_seen');
+      if(!seen){ tutorial.style.display='flex'; }
+    }
+    demoBtn.onclick = ()=>{
+      tutorial.style.display='none';
+      // Demo 1 (quote): SAY + THINK
+      const ex1 = RAW_SNIPPETS.find(s=>s.type==='chat'||s.type==='quote');
+      touched.add(ex1.id);
+      stickies.push(
+        mkSticky(ex1.id,'SAY','“I like learning new leadership ideas.” (from quote)',false),
+        mkSticky(ex1.id,'THINK','New ideas die back at the shop; change isn’t valued.',false)
+      );
+      // Demo 2 (observation): DO + FEEL
+      const ex2 = RAW_SNIPPETS.find(s=>s.type==='observation');
+      touched.add(ex2.id);
+      stickies.push(
+        mkSticky(ex2.id,'DO','Engaged during interactive case; disengaged in lecture.',false),
+        mkSticky(ex2.id,'FEEL','Bored/fatigued during passive instruction.',false)
+      );
+      renderBoard(); renderRawList();
+      localStorage.setItem('empathy_tutorial_seen','1');
+    };
+    skipBtn.onclick = ()=>{ tutorial.style.display='none'; localStorage.setItem('empathy_tutorial_seen','1'); };
+
+    /* ============================
+       Helpers
+       ============================ */
+    function mkSticky(snippetId, cat, text, hintUsed){
+      return { id: 'k' + Math.random().toString(36).slice(2), snippetId, cat, text, hintUsed, createdAt: Date.now() };
+    }
+    function chipColor(cat){
+      return ({SAY:'var(--say)', THINK:'var(--think)', FEEL:'var(--feel)', DO:'var(--do)'}[cat]);
+    }
+    function nice(cat){ return ({SAY:'Says', THINK:'Thinks', FEEL:'Feels', DO:'Does'})[cat]; }
+    function escapeHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+    /* ============================
+       Init
+       ============================ */
+    renderRawList();
+    renderBoard();
+    showTutorialOnce();
+  </script>
+</body>
+</html>
