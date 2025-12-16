@@ -1,15 +1,222 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>page6_Brainstorming Activity</title>
-<link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brainstorming Activity – PME Whiteboard</title>
+
+  <!-- Reuse your existing course CSS -->
+  <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
+
+  <style>
+    :root{
+      /* User sticky note colors */
+      --note-yellow:#ffd95e;
+      --note-blue:#7eb7ff;
+
+      /* AI idea sticky note colors (distinct from user) */
+      --note-orange:#ffa45e;
+      --note-green:#9be7a5;
+      --note-purple:#c9a3ff;
+      --note-grey:#d8d8d8;
+
+      --note-shadow:rgba(0,0,0,.18);
+    }
+
+    #wrapper{
+      width:min(100%, 1100px);
+      margin:0 auto;
+    }
+
+    nav a.active{
+      font-weight:bold;
+      text-decoration:underline;
+    }
+
+    .page-intro{
+      text-align:left;
+      margin:0.75rem 0 0.5rem;
+    }
+
+    /* Layout / whiteboard */
+    .brain-layout{
+      margin:1rem auto 2.5rem;
+      max-width:900px;
+    }
+
+    .brain-instructions{
+      font-size:0.9rem;
+      color:#555;
+      text-align:left;
+      margin-bottom:0.75rem;
+    }
+
+    .brain-board{
+      position:relative;
+      width:900px;          /* fixed width to keep coordinates stable */
+      height:560px;
+      margin:0 auto;
+      background:#fdfdfd;
+      border-radius:18px;
+      border:3px solid #e1e1e1;
+      box-shadow:0 10px 20px rgba(0,0,0,.08) inset, 0 4px 10px rgba(0,0,0,.12);
+      overflow:hidden;
+    }
+
+    .brain-board::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:22px;
+      background:linear-gradient(to bottom, #f7f7f7, transparent);
+      opacity:0.7;
+    }
+
+    /* Controls at top of board */
+    .brain-controls{
+      position:absolute;
+      top:10px;
+      left:16px;
+      right:16px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      z-index:2;
+    }
+
+    .brain-controls label{
+      font-weight:600;
+      font-size:0.9rem;
+    }
+
+    .brain-controls select{
+      min-width:260px;
+      max-width:100%;
+      padding:6px 8px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:0.9rem;
+    }
+
+    .timer-display{
+      margin-left:auto;
+      font-weight:700;
+      font-size:1rem;
+      white-space:nowrap;
+    }
+
+    .timer-display span{
+      font-family:monospace;
+      padding:2px 6px;
+      border-radius:6px;
+      background:#111;
+      color:#fff;
+    }
+
+    .timer-done span{
+      background:#880000;
+    }
+
+    .note-bank-label{
+      position:absolute;
+      top:70px;
+      left:20px;
+      font-size:0.8rem;
+      font-weight:600;
+      color:#444;
+      z-index:1;
+    }
+
+    /* Sticky note base (anchored inside .brain-board) */
+    .sticky-note{
+      position:absolute;
+      width:150px;
+      min-height:80px;
+      max-height:160px;
+      padding:8px 8px 10px 8px;
+      border-radius:4px;
+      box-shadow:0 4px 6px var(--note-shadow);
+      font-size:0.9rem;
+      line-height:1.3;
+      text-align:left;
+      cursor:grab;
+      background:var(--note-yellow);
+      transform:rotate(-2deg);
+      touch-action:none; /* for drag on touch */
+      display:flex;
+      flex-direction:column;
+    }
+
+    .sticky-note:active{
+      cursor:grabbing;
+    }
+
+    /* Tape only for notes placed/used on the board */
+    .sticky-note.on-board::before{
+      content:"";
+      position:absolute;
+      top:-10px;
+      left:40%;
+      width:28px;
+      height:12px;
+      background:#f7f3d0;
+      box-shadow:0 1px 2px rgba(0,0,0,.15);
+      border-radius:2px;
+      transform:rotate(2deg);
+    }
+
+    .note-body{
+      flex:1 1 auto;
+      max-height:120px;
+      overflow-y:auto;
+      outline:none;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      cursor:text;
+    }
+
+    .user-note-yellow{ background:var(--note-yellow); }
+    .user-note-blue{ background:var(--note-blue); }
+
+    .ai-note-orange{ background:var(--note-orange); }
+    .ai-note-green{ background:var(--note-green); }
+    .ai-note-purple{ background:var(--note-purple); }
+    .ai-note-grey{ background:var(--note-grey); }
+
+    .note-placeholder{
+      color:#777;
+      font-style:italic;
+    }
+
+    /* Template positions (left column inside board) */
+    #userNoteYellow{ left:30px; top:110px; transform:rotate(-3deg); }
+    #userNoteBlue  { left:70px; top:150px; transform:rotate(2deg); }
+
+    /* Board placement zone */
+    .board-zone{
+      position:absolute;
+      top:90px;
+      left:220px;
+      right:16px;
+      bottom:16px;
+      /* invisible boundary */
+    }
+
+    @media (max-width:950px){
+      .brain-layout{
+        width:900px;
+        overflow-x:auto;
+      }
+    }
+  </style>
 </head>
 
 <body>
-	<h1>Design Thinking</h1>
-	
- <nav>
+  <h1>Design Thinking</h1>
+  <nav>
     <a href="index.html"> Home</a>
     <a href="page2_5phases.html"> The 5 Phases</a>
     <a href="page3_CaseStudy.html"> Case Study</a>
@@ -17,23 +224,442 @@
     <a href="page5_PostTest.html"> Post-Test</a>
     <a href="page6_Brainstorming.html" class="active"> Brainstorming Activity</a>
     <a href="page7_Matching.html"> Matching Activity</a>
-	<a href="page9_Empathymap.html"> Empathy Mapping Activity</a>
-	<a href="page10_Affinitymapping.html"> Affinity Mapping Activity</a>
-	<a href="page8_Resources.html"> Resources</a>
+    <a href="page9_Empathymap.html"> Empathy Mapping Activity</a>
+    <a href="page10_Affinitymapping.html"> Affinity Mapping Activity</a>
+    <a href="page11_Impact-EffortMatrix.html"> Impact–Effort Matrix</a>
+    <a href="page8_Resources.html"> Resources</a>
   </nav>
-	
-	<br><br>
-	<h2>Brainstorming Activity</h2>
-	During this short brainstorming activity, we will practice the first phase of Brainstorming,
-	<p>We will practice divergent rapid idea generation. Take 5 minutes to generate as many ideas as you can.</p> 
-	
-	<p><b>Phase 1:</b> Divergent broad idea generation. (“wild” ideas—sometimes absurdity unlocks creativity)</p>
-	<p><b>Phase 2:</b> Group and cluster ideas into similar categories. </p>
-	<p><b>Phase 3:</b> Convergent Phase, elimitate unfeasible, impractical ideas, and narrow the list to 2-3 ideas.</p>
-	
 
-<!-- iFrame code added below -->
-	<div class="padlet-embed" style="border:1px solid rgba(0,0,0,0.1);border-radius:2px;box-sizing:border-box;overflow:hidden;position:relative;width:100%;background:#F4F4F4"><p style="padding:0;margin:0"><iframe src="https://padlet.com/embed/7jyk93q3wnoiysfh" frameborder="0" allow="camera;microphone;geolocation;display-capture;clipboard-write" style="width:100%;height:608px;display:block;padding:0;margin:0"></iframe></p><div style="display:flex;align-items:center;justify-content:end;margin:0;height:28px"><a href="https://padlet.com?ref=embed" style="display:block;flex-grow:0;margin:0;border:none;padding:0;text-decoration:none" target="_blank"><div style="display:flex;align-items:center;"><img src="https://padlet.net/embeds/made_with_padlet_2022.png" width="114" height="28" style="padding:0;margin:0;background:0 0;border:none;box-shadow:none" alt="Made with Padlet"></div></a></div></div>
+  <div id="wrapper">
+    <h1>Brainstorming Whiteboard</h1>
+    <p class="page-intro">
+      Choose a <strong>How Might We</strong> statement, then drag blank sticky notes from the stack
+      onto the whiteboard. Click inside a note to type 1 idea (up to 20 words). A 5-minute timer
+      starts when you place your first idea.
+    </p>
 
+    <div class="brain-layout">
+      <div class="brain-instructions">
+        1. Drag a blank sticky from the left stack into the main whiteboard area.<br>
+        2. Click inside the note body and type your idea (max 20 words).<br>
+        3. Every 40 seconds after your first idea, a new colored idea note will appear.
+      </div>
+
+      <div class="brain-board" id="brainBoard" aria-label="Brainstorm whiteboard">
+        <div class="brain-controls">
+          <label for="hmwSelect">HMW:</label>
+          <select id="hmwSelect">
+            <option value="relevance">
+              How might we tailor PME content to be more relevant to Marines’ day-to-day roles and responsibilities?
+            </option>
+            <option value="career">
+              How might we connect PME participation and performance more clearly to career development and promotion opportunities?
+            </option>
+          </select>
+
+          <div class="timer-display" id="timerDisplay">
+            Time remaining: <span>05:00</span>
+          </div>
+        </div>
+
+        <div class="note-bank-label">Your sticky notes</div>
+
+        <!-- Zone defining where "on-board" is -->
+        <div class="board-zone" id="boardZone"></div>
+
+        <!-- Two template user sticky notes -->
+        <div id="userNoteYellow" class="sticky-note user-note-yellow" data-source="user" data-template="true">
+          <div class="note-body"></div>
+        </div>
+        <div id="userNoteBlue" class="sticky-note user-note-blue" data-source="user" data-template="true">
+          <div class="note-body"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- HMW idea pools ----------
+    const IDEAS_RELEVANCE = [
+      "PME auto-adapts daily using MOS data, task patterns, and unit rhythms.",
+      "Marines receive micro-PME triggered by real moments: inspections, briefs, maintenance tasks.",
+      "AI mentor translates doctrine into MOS-specific checklists and quick decision scenarios.",
+      "Daily 'PME WOD' delivers short, role-matched scenarios aligned to yesterday's work.",
+      "PME content crowdsourced from Marines' real problems, successes, and field innovations.",
+      "Unit dashboards show relevant PME tied directly to upcoming missions and tasks.",
+      "Interactive PME maps doctrine to each billet's responsibilities in real time.",
+      "Role-based PME playlists auto-update as Marines switch billets or gain quals.",
+      "Smart equipment prompts PME scenarios when Marines conduct routine tasks or drills.",
+      "Chat-based PME advisor answers MOS-specific questions with immediate, contextual guidance."
+    ];
+
+    const IDEAS_CAREER = [
+      "AR micro-missions overlay PME scenarios directly onto Marines' daily tasks.",
+      "Branching 'PME RPG' adapts content based on MOS choices and actions.",
+      "Daily PME 'battle drills' deliver personalized five-minute scenarios like a WOD.",
+      "AI future-self mentor gives role-specific guidance tied to Marine decisions.",
+      "Gamified PME lets Marines collect evolving skill-creatures by completing tasks.",
+      "Marines upload task videos; AI generates hyper-relevant PME micro-lessons instantly.",
+      "Swipe-based PME app learns preferences and curates MOS-relevant content daily.",
+      "PME-themed escape rooms embed MOS workflows into interactive team challenges.",
+      "Automatic hotwash-to-PME system builds micro-lessons from real events and tasks.",
+      "Smart objects act as PME NPCs, prompting scenarios during normal work routines."
+    ];
+
+    let remainingAI = [...IDEAS_RELEVANCE];
+    let aiInterval = null;
+    let timerInterval = null;
+    let timerStarted = false;
+    let timerSeconds = 5 * 60; // 5 minutes
+    let lastHmwValue = 'relevance';
+
+    const board = document.getElementById('brainBoard');
+    const boardZone = document.getElementById('boardZone');
+    const hmwSelect = document.getElementById('hmwSelect');
+    const timerDisplay = document.getElementById('timerDisplay').querySelector('span');
+
+    function resetAIPool(){
+      remainingAI = hmwSelect.value === 'relevance'
+        ? [...IDEAS_RELEVANCE]
+        : [...IDEAS_CAREER];
+    }
+
+    function formatTime(sec){
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    }
+
+    function resetActivity(){
+      // Stop timers
+      timerStarted = false;
+      if (timerInterval) clearInterval(timerInterval);
+      if (aiInterval) clearInterval(aiInterval);
+      timerSeconds = 5 * 60;
+      timerDisplay.textContent = formatTime(timerSeconds);
+      document.getElementById('timerDisplay').classList.remove('timer-done');
+
+      // Remove AI notes
+      document.querySelectorAll('.sticky-note[data-source="ai"]').forEach(n => n.remove());
+
+      // Reset AI pool
+      resetAIPool();
+
+      // Reset templates and remove any user notes created from templates
+      document.querySelectorAll('.sticky-note[data-source="user"]').forEach(note => {
+        if (note.dataset.template === 'true'){
+          // Template: reset position and content
+          const originLeft = note.dataset.originLeft;
+          const originTop = note.dataset.originTop;
+          if (originLeft !== undefined && originTop !== undefined){
+            note.style.left = originLeft + 'px';
+            note.style.top = originTop + 'px';
+          }
+          note.classList.remove('on-board');
+          note.dataset.activated = 'false';
+          const body = note.querySelector('.note-body');
+          if (body){
+            body.textContent = '';
+            body.contentEditable = false;
+            body.classList.remove('note-placeholder');
+          }
+        } else {
+          // Non-template user sticky: remove
+          note.remove();
+        }
+      });
+    }
+
+    function startTimerOnce(){
+      if (timerStarted) return;
+      timerStarted = true;
+      timerSeconds = 5*60;
+      timerDisplay.textContent = formatTime(timerSeconds);
+
+      timerInterval = setInterval(()=>{
+        timerSeconds--;
+        if (timerSeconds <= 0){
+          timerSeconds = 0;
+          clearInterval(timerInterval);
+          timerDisplay.textContent = "00:00";
+          document.getElementById('timerDisplay').classList.add('timer-done');
+        } else {
+          timerDisplay.textContent = formatTime(timerSeconds);
+        }
+      },1000);
+
+      scheduleAIInterval();
+    }
+
+    function scheduleAIInterval(){
+      resetAIPool();
+      if (aiInterval) clearInterval(aiInterval);
+      aiInterval = setInterval(()=>{
+        if (!timerStarted) return;
+        if (remainingAI.length === 0){
+          clearInterval(aiInterval);
+          return;
+        }
+        addAISticky();
+      }, 40000); // every 40 seconds
+    }
+
+    function randomFromArray(arr){
+      const idx = Math.floor(Math.random()*arr.length);
+      return arr.splice(idx,1)[0];
+    }
+
+    const aiColorClasses = ['ai-note-orange','ai-note-green','ai-note-purple','ai-note-grey'];
+    let aiNoteCount = 0;
+
+    function addAISticky(){
+      if (timerSeconds <= 0) return;
+      if (remainingAI.length === 0) return;
+
+      const idea = randomFromArray(remainingAI);
+      const note = document.createElement('div');
+      const body = document.createElement('div');
+      body.className = 'note-body';
+      body.textContent = idea;
+      note.appendChild(body);
+
+      aiNoteCount++;
+      note.className = 'sticky-note on-board ' + aiColorClasses[aiNoteCount % aiColorClasses.length];
+      note.dataset.source = 'ai';
+      note.dataset.template = 'false';
+      note.dataset.activated = 'true';
+      note.id = 'aiNote' + aiNoteCount;
+
+      // Place randomly inside boardZone
+      const zoneRect = boardZone.getBoundingClientRect();
+      const boardRect = board.getBoundingClientRect();
+
+      const noteWidth = 160;
+      const noteHeight = 130;
+
+      const minLeft = zoneRect.left - boardRect.left + 10;
+      const maxLeft = zoneRect.right - boardRect.left - noteWidth - 10;
+      const minTop = zoneRect.top - boardRect.top + 10;
+      const maxTop = zoneRect.bottom - boardRect.top - noteHeight - 10;
+
+      const left = Math.max(minLeft, Math.random()*(maxLeft-minLeft) + minLeft);
+      const top  = Math.max(minTop,  Math.random()*(maxTop-minTop)  + minTop);
+
+      note.style.left = left + 'px';
+      note.style.top  = top  + 'px';
+
+      board.appendChild(note);
+      attachDragHandlers(note, false); // draggable but not editable
+    }
+
+    // ---- Word limit logic for user notes ----
+    function enforceWordLimit(bodyEl){
+      bodyEl.addEventListener('input', ()=>{
+        const text = bodyEl.textContent.replace(/\n/g,' ').trim();
+        const words = text.split(/\s+/).filter(Boolean);
+        if (words.length > 20){
+          const clipped = words.slice(0,20).join(' ');
+          bodyEl.textContent = clipped;
+          placeCaretAtEnd(bodyEl);
+        }
+      });
+    }
+
+    function placeCaretAtEnd(el){
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    function activateUserNote(note){
+      if (note.dataset.activated === 'true') return;
+      note.dataset.activated = 'true';
+      note.classList.add('on-board');
+      const body = note.querySelector('.note-body');
+      body.contentEditable = 'true';
+      body.classList.add('note-placeholder');
+      body.textContent = 'Type your idea here… (max 20 words)';
+      body.addEventListener('focus', ()=>{
+        if (body.classList.contains('note-placeholder')){
+          body.textContent = '';
+          body.classList.remove('note-placeholder');
+        }
+      }, { once:true });
+      enforceWordLimit(body);
+    }
+
+    // Create a new template note of same color at origin position
+    function spawnTemplate(originLeft, originTop, colorClass){
+      const note = document.createElement('div');
+      note.className = 'sticky-note ' + colorClass;
+      note.dataset.source = 'user';
+      note.dataset.template = 'true';
+      note.dataset.activated = 'false';
+      note.dataset.originLeft = originLeft;
+      note.dataset.originTop = originTop;
+
+      note.style.left = originLeft + 'px';
+      note.style.top  = originTop + 'px';
+
+      const body = document.createElement('div');
+      body.className = 'note-body';
+      body.textContent = '';
+      body.contentEditable = false;
+      note.appendChild(body);
+
+      board.appendChild(note);
+      attachDragHandlers(note, true);
+    }
+
+    // ---- Drag logic using Pointer Events anchored to board ----
+    (function(){
+      const notes = document.querySelectorAll('.sticky-note');
+      let activeNote = null;
+      let offsetX = 0;
+      let offsetY = 0;
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+
+      // record template original positions
+      notes.forEach(note => {
+        const left = parseFloat(note.style.left) || 0;
+        const top  = parseFloat(note.style.top) || 0;
+        note.dataset.originLeft = left;
+        note.dataset.originTop = top;
+        attachDragHandlers(note, true);
+      });
+
+      function pointerDown(e){
+        // Whole sticky is draggable, including body
+        activeNote = e.currentTarget;
+        activeNote.setPointerCapture(e.pointerId);
+
+        const noteRect = activeNote.getBoundingClientRect();
+        const boardRect = board.getBoundingClientRect();
+        offsetX = e.clientX - noteRect.left;
+        offsetY = e.clientY - noteRect.top;
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = false;
+
+        const left = noteRect.left - boardRect.left;
+        const top  = noteRect.top  - boardRect.top;
+        activeNote.style.left = left + 'px';
+        activeNote.style.top  = top  + 'px';
+
+        board.addEventListener('pointermove', pointerMove);
+        board.addEventListener('pointerup', pointerUp);
+        board.addEventListener('pointercancel', pointerUp);
+      }
+
+      function pointerMove(e){
+        if (!activeNote) return;
+        const dx = Math.abs(e.clientX - startX);
+        const dy = Math.abs(e.clientY - startY);
+        if (dx > 2 || dy > 2){ // small threshold
+          isDragging = true;
+        }
+
+        const boardRect = board.getBoundingClientRect();
+        let newLeft = e.clientX - boardRect.left - offsetX;
+        let newTop  = e.clientY - boardRect.top  - offsetY;
+
+        const maxLeft = boardRect.width - activeNote.offsetWidth - 5;
+        const maxTop  = boardRect.height - activeNote.offsetHeight - 5;
+
+        newLeft = Math.max(0, Math.min(maxLeft, newLeft));
+        newTop  = Math.max(0, Math.min(maxTop, newTop));
+
+        activeNote.style.left = newLeft + 'px';
+        activeNote.style.top  = newTop + 'px';
+      }
+
+      function pointerUp(e){
+        if (!activeNote) return;
+
+        const isTemplate = activeNote.dataset.template === 'true';
+        const source = activeNote.dataset.source;
+
+        if (source === 'user'){
+          const zoneRect = boardZone.getBoundingClientRect();
+          const boardRect = board.getBoundingClientRect();
+          const noteRect  = activeNote.getBoundingClientRect();
+
+          const inside =
+            noteRect.right > zoneRect.left + 5 &&
+            noteRect.left  < zoneRect.right - 5 &&
+            noteRect.bottom> zoneRect.top + 5 &&
+            noteRect.top   < zoneRect.bottom - 5;
+
+          if (inside){
+            // If this is the first time a template is placed, convert to "real" note
+            if (isTemplate){
+              activeNote.dataset.template = 'false';
+              activateUserNote(activeNote);
+              startTimerOnce();
+              // spawn a new template back at origin
+              const originLeft = parseFloat(activeNote.dataset.originLeft) || 0;
+              const originTop  = parseFloat(activeNote.dataset.originTop) || 0;
+              const isYellow = activeNote.classList.contains('user-note-yellow');
+              const colorClass = isYellow ? 'user-note-yellow' : 'user-note-blue';
+              spawnTemplate(originLeft, originTop, colorClass);
+            } else {
+              // already a "real" user note; ensure activated
+              activateUserNote(activeNote);
+              startTimerOnce();
+            }
+          }
+        }
+
+        activeNote.releasePointerCapture(e.pointerId);
+        activeNote = null;
+        isDragging = false;
+        board.removeEventListener('pointermove', pointerMove);
+        board.removeEventListener('pointerup', pointerUp);
+        board.removeEventListener('pointercancel', pointerUp);
+      }
+
+      function attachDragHandlers(note, initUser){
+        note.addEventListener('pointerdown', pointerDown);
+        if (initUser){
+          const body = note.querySelector('.note-body');
+          if (body){
+            body.textContent = '';          // start blank
+            body.contentEditable = false;   // becomes editable when activated
+          }
+        }
+      }
+
+      // expose for AI notes
+      window.attachDragHandlers = attachDragHandlers;
+    })();
+
+    // ---- HMW change: confirm + reset if timer already started ----
+    hmwSelect.addEventListener('change', (e)=>{
+      const newVal = e.target.value;
+      if (timerStarted){
+        const ok = window.confirm("Please confirm you want to restart the activity?");
+        if (!ok){
+          // revert selection
+          hmwSelect.value = lastHmwValue;
+          return;
+        }
+        // user confirmed restart
+        lastHmwValue = newVal;
+        resetActivity();
+      } else {
+        lastHmwValue = newVal;
+        resetAIPool();
+      }
+    });
+
+    // Initialize lastHmw and AI pool
+    lastHmwValue = hmwSelect.value;
+    resetAIPool();
+  </script>
 </body>
 </html>

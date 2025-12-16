@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>page11_Impact-EffortMatrix</title>
+
+  <!-- Your existing course CSS -->
+  <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
+
+  <style>
+    :root{
+      --note-yellow:#ffd95e;
+      --note-orange:#ffa45e;
+      --note-red:#ff6b6b;
+      --note-blue:#7eb7ff;
+      --note-grey:#d8d8d8;
+      --note-shadow:rgba(0,0,0,.18);
+      --axis-color:#333;
+      --grid-line:#d0d0d0;
+    }
+
+    #wrapper{
+      width:min(100%, 1000px);
+      margin:0 auto;
+    }
+
+    h1{
+      margin-top:0.5rem;
+    }
+
+    nav a.active{
+      font-weight:bold;
+      text-decoration:underline;
+    }
+
+    .page-intro{
+      text-align:left;
+      margin:1rem 0 0.5rem;
+    }
+
+    .matrix-wrapper{
+      margin:1.5rem auto 2.5rem;
+      max-width:900px;
+      position:relative;
+      padding:32px 40px 70px;
+      box-sizing:border-box;
+    }
+
+    /* Axes */
+    .matrix-axis-y,
+    .matrix-axis-x{
+      position:absolute;
+      font-weight:600;
+      color:var(--axis-color);
+    }
+
+    .matrix-axis-y{
+      left:0;
+      top:20px;
+      bottom:50px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      align-items:flex-start;
+    }
+
+    .matrix-axis-y span.label-main{
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      margin-left:-6px;
+    }
+
+    .matrix-axis-x{
+      left:40px;
+      right:0;
+      bottom:10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+    }
+
+    .matrix-axis-y span.small,
+    .matrix-axis-x span.small{
+      font-size:0.85rem;
+      color:#666;
+    }
+
+    /* Grid */
+    .matrix-grid{
+      border-left:2px solid var(--axis-color);
+      border-bottom:2px solid var(--axis-color);
+      margin-left:40px;
+      margin-bottom:24px;
+      height:360px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .matrix-grid::before,
+    .matrix-grid::after{
+      content:"";
+      position:absolute;
+      background:var(--grid-line);
+    }
+    /* horizontal mid-line */
+    .matrix-grid::before{
+      left:0; right:0;
+      top:50%;
+      height:1px;
+    }
+    /* vertical mid-line */
+    .matrix-grid::after{
+      top:0; bottom:0;
+      left:50%;
+      width:1px;
+    }
+
+    /* Sticky notes (initially in a “note bank”, but draggable anywhere) */
+    .idea-note{
+      position:absolute;
+      min-width:140px;
+      max-width:190px;
+      padding:10px 12px;
+      border-radius:4px;
+      box-shadow:0 4px 6px var(--note-shadow);
+      font-size:0.9rem;
+      line-height:1.3;
+      text-align:left;
+      cursor:grab;
+      background:var(--note-yellow);
+      transform:rotate(-2deg);
+      touch-action:none; /* important for pointer events on touch */
+    }
+
+    .idea-note:active{
+      cursor:grabbing;
+    }
+
+    .idea-note::before{
+      content:"";
+      position:absolute;
+      top:-10px;
+      left:40%;
+      width:28px;
+      height:12px;
+      background:#f7f3d0;
+      box-shadow:0 1px 2px rgba(0,0,0,.15);
+      border-radius:2px;
+      transform:rotate(2deg);
+    }
+
+    .idea-yellow{ background:var(--note-yellow); }
+    .idea-orange{ background:var(--note-orange); }
+    .idea-red{ background:var(--note-red); color:#fff; }
+    .idea-blue{ background:var(--note-blue); }
+    .idea-grey{ background:var(--note-grey); }
+
+    /* Initial “note bank” positions (bottom row) */
+    #note-guest      { left:60px;   top:340px; }
+    #note-multimedia { left:260px;  top:340px; }
+    #note-competition{ left:460px;  top:340px; }
+    #note-voting     { left:660px;  top:340px; }
+    #note-mobile     { left:160px;  top:430px; }
+    #note-vr         { left:460px;  top:430px; }
+
+    .hint-text{
+      font-size:0.9rem;
+      color:#555;
+      text-align:left;
+      margin-top:4px;
+    }
+
+    @media (max-width:900px){
+      .matrix-wrapper{
+        padding:24px 16px 90px;
+      }
+      .matrix-grid{
+        height:320px;
+        margin-left:36px;
+      }
+      .idea-note{
+        min-width:120px;
+        font-size:0.85rem;
+      }
+      #note-guest      { left:40px;  top:330px; }
+      #note-multimedia { left:220px; top:330px; }
+      #note-competition{ left:420px; top:330px; }
+      #note-voting     { left:40px;  top:420px; }
+      #note-mobile     { left:220px; top:420px; }
+      #note-vr         { left:420px; top:420px; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Design Thinking</h1>
+  <nav>
+    <a href="index.html"> Home</a>
+    <a href="page2_5phases.html"> The 5 Phases</a>
+    <a href="page3_CaseStudy.html"> Case Study</a>
+    <a href="page4_IntroCourse.html"> Intro Course</a>
+    <a href="page5_PostTest.html"> Post-Test</a>
+    <a href="page6_Brainstorming.html"> Brainstorming Activity</a>
+    <a href="page7_Matching.html"> Matching Activity</a>
+    <a href="page9_Empathymap.html"> Empathy Mapping Activity</a>
+    <a href="page10_Affinitymapping.html"> Affinity Mapping Activity</a>
+    <a href="page11_Impact-EffortMatrix.html" class="active"> Impact–Effort Matrix Activity</a>
+    <a href="page8_Resources.html"> Resources</a>
+  </nav>
+
+  <div id="wrapper">
+    <h1>Impact–Effort Matrix</h1>
+
+    <div class="page-intro">
+      <p>
+        Drag each sticky note onto the matrix. 
+        Place ideas higher for greater <strong>impact</strong> on Marines, and further right 
+        for greater <strong>effort</strong> or resources required.
+      </p>
+      <p class="hint-text">
+        You can move notes freely. There is no single “correct” answer—the goal is to 
+        think about and justify where you place each idea.
+      </p>
+    </div>
+
+    <section aria-label="Interactive Impact–Effort matrix">
+      <div class="matrix-wrapper" id="matrixWrapper">
+        <!-- Y axis -->
+        <div class="matrix-axis-y" aria-hidden="true">
+          <span class="small">High</span>
+          <span class="label-main">Impact</span>
+          <span class="small">Low</span>
+        </div>
+
+        <!-- Grid area (notes can be dragged over this region) -->
+        <div class="matrix-grid" id="matrixGrid"></div>
+
+        <!-- X axis -->
+        <div class="matrix-axis-x" aria-hidden="true">
+          <span class="small">Low</span>
+          <span class="label-main">Effort</span>
+          <span class="small">High</span>
+        </div>
+
+        <!-- Draggable sticky notes (start in a “bank” below the matrix) -->
+        <div id="note-guest" class="idea-note idea-yellow">
+          Guest speakers with real stories
+        </div>
+        <div id="note-multimedia" class="idea-note idea-orange">
+          Multimedia content instead of text-heavy slides
+        </div>
+        <div id="note-competition" class="idea-note idea-red">
+          Competitive PME challenge (teams earn points for scenarios)
+        </div>
+        <div id="note-voting" class="idea-note idea-blue">
+          Voting on PME topics for next month
+        </div>
+        <div id="note-mobile" class="idea-note idea-grey">
+          Mobile app with micro-PME lessons
+        </div>
+        <div id="note-vr" class="idea-note idea-grey">
+          Virtual-reality or simulation-based PME
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Reflection</h2>
+      <p class="hint-text">
+        After you’ve placed each idea, which ones land in the “high impact / low effort” area? 
+        How might those become quick wins for your unit?
+      </p>
+    </section>
+  </div>
+
+  <script>
+    // Simple drag logic using Pointer Events (works for mouse & touch)
+    (function(){
+      const wrapper = document.getElementById('matrixWrapper');
+      const notes   = document.querySelectorAll('.idea-note');
+
+      let activeNote = null;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      notes.forEach(note => {
+        note.addEventListener('pointerdown', startDrag);
+      });
+
+      function startDrag(e){
+        activeNote = e.currentTarget;
+        activeNote.setPointerCapture(e.pointerId);
+        const rect = activeNote.getBoundingClientRect();
+        const wrapperRect = wrapper.getBoundingClientRect();
+        // offset between pointer and top/left of note
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        // ensure positioning relative to wrapper
+        const left = rect.left - wrapperRect.left;
+        const top  = rect.top  - wrapperRect.top;
+        activeNote.style.left = left + 'px';
+        activeNote.style.top  = top  + 'px';
+
+        wrapper.addEventListener('pointermove', onDrag);
+        wrapper.addEventListener('pointerup', endDrag);
+        wrapper.addEventListener('pointercancel', endDrag);
+        e.preventDefault();
+      }
+
+      function onDrag(e){
+        if(!activeNote) return;
+        const wrapperRect = wrapper.getBoundingClientRect();
+        let newLeft = e.clientX - wrapperRect.left - offsetX;
+        let newTop  = e.clientY - wrapperRect.top  - offsetY;
+
+        // Optional: keep notes inside wrapper bounds
+        const maxLeft = wrapperRect.width - activeNote.offsetWidth;
+        const maxTop  = wrapperRect.height - activeNote.offsetHeight;
+        newLeft = Math.max(0, Math.min(maxLeft, newLeft));
+        newTop  = Math.max(0, Math.min(maxTop, newTop));
+
+        activeNote.style.left = newLeft + 'px';
+        activeNote.style.top  = newTop  + 'px';
+      }
+
+      function endDrag(e){
+        if(activeNote){
+          activeNote.releasePointerCapture(e.pointerId);
+        }
+        activeNote = null;
+        wrapper.removeEventListener('pointermove', onDrag);
+        wrapper.removeEventListener('pointerup', endDrag);
+        wrapper.removeEventListener('pointercancel', endDrag);
+      }
+    })();
+  </script>
+</body>
+</html>
