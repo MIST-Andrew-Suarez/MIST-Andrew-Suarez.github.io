@@ -114,17 +114,82 @@
 
     /* Mobile: cards in a single stack instead of spread row */
     @media (max-width: 768px){
-      .insight-row{
-        flex-direction:column;
-        align-items:stretch;
-      }
-      .affinity-card{
-        max-width:100%;
-      }
-      .affinity-grid{
-        grid-template-columns:1fr;
-      }
-    }
+  /* Top pool: stacked deck on phones */
+  .insight-row{
+    position: relative;
+    min-height: 220px;
+    display: block;
+    padding: 16px;
+  }
+  .insight-row .affinity-card{
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 260px;
+  }
+
+  /* Slight vertical offsets so the stack is visible */
+  .insight-row .affinity-card:nth-child(1){ top:  0px;  }
+  .insight-row .affinity-card:nth-child(2){ top:  8px;  }
+  .insight-row .affinity-card:nth-child(3){ top: 16px;  }
+  .insight-row .affinity-card:nth-child(4){ top: 24px;  }
+  .insight-row .affinity-card:nth-child(5){ top: 32px;  }
+  .insight-row .affinity-card:nth-child(6){ top: 40px;  }
+  .insight-row .affinity-card:nth-child(7){ top: 48px;  }
+  .insight-row .affinity-card:nth-child(8){ top: 56px;  }
+  .insight-row .affinity-card:nth-child(9){ top: 64px;  }
+  .insight-row .affinity-card:nth-child(10){ top:72px;  }
+  .insight-row .affinity-card:nth-child(11){ top:80px;  }
+  .insight-row .affinity-card:nth-child(12){ top:88px;  }
+  .insight-row .affinity-card:nth-child(13){ top:96px;  }
+  .insight-row .affinity-card:nth-child(14){ top:104px; }
+  .insight-row .affinity-card:nth-child(15){ top:112px; }
+  .insight-row .affinity-card:nth-child(16){ top:120px; }
+
+  /* Bins: also stacked decks on phones */
+  .affinity-grid{
+    grid-template-columns:1fr;
+  }
+
+  .affinity-drop{
+    position: relative;
+    min-height: 220px;
+    display: block;
+  }
+
+  .affinity-drop .affinity-card{
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 260px;
+  }
+
+  .affinity-drop .affinity-card:nth-child(1){ top:  0px;  }
+  .affinity-drop .affinity-card:nth-child(2){ top:  8px;  }
+  .affinity-drop .affinity-card:nth-child(3){ top: 16px;  }
+  .affinity-drop .affinity-card:nth-child(4){ top: 24px;  }
+  .affinity-drop .affinity-card:nth-child(5){ top: 32px;  }
+  .affinity-drop .affinity-card:nth-child(6){ top: 40px;  }
+  .affinity-drop .affinity-card:nth-child(7){ top: 48px;  }
+  .affinity-drop .affinity-card:nth-child(8){ top: 56px;  }
+  .affinity-drop .affinity-card:nth-child(9){ top: 64px;  }
+  .affinity-drop .affinity-card:nth-child(10){ top:72px;  }
+  .affinity-drop .affinity-card:nth-child(11){ top:80px;  }
+  .affinity-drop .affinity-card:nth-child(12){ top:88px;  }
+  .affinity-drop .affinity-card:nth-child(13){ top:96px;  }
+  .affinity-drop .affinity-card:nth-child(14){ top:104px; }
+  .affinity-drop .affinity-card:nth-child(15){ top:112px; }
+  .affinity-drop .affinity-card:nth-child(16){ top:120px; }
+
+  .affinity-card{
+    /* keep grab cursor for consistency */
+    cursor:pointer;
+  }
+}
+
+
   </style>
 </head>
 
@@ -209,7 +274,7 @@
     </section>
   </div>
 
-  <script>
+  <!-- <script>
     // ---- Data for the 16 insight cards ----
     const INSIGHTS = [
       { id:'i1',  text:'Examples used in PME are outdated and don’t match current missions.' },
@@ -296,6 +361,141 @@
       renderCards();
       wireDropZones();
     });
-  </script>
+  </script>-->
+	
+	<script>
+  const INSIGHTS = [
+    { id:'i1',  text:'Examples used in PME are outdated and don’t match current missions.' },
+    { id:'i2',  text:'Content does not connect to Marines’ real MOS tasks.' },
+    { id:'i3',  text:'Marines say PME feels like a check-in-the-box requirement.' },
+    { id:'i4',  text:'Marines tune out during long PowerPoint lectures.' },
+    { id:'i5',  text:'No hands-on activities or scenario-based discussions are included.' },
+    { id:'i6',  text:'Instructors struggle to generate participation.' },
+    { id:'i7',  text:'Marines feel the current PME format is boring and passive.' },
+    { id:'i8',  text:'Instructors must follow the mandated curriculum with little flexibility.' },
+    { id:'i9',  text:'PME materials are not regularly updated.' },
+    { id:'i10', text:'There is no structured mechanism for Marines to give feedback.' },
+    { id:'i11', text:'Administrative and policy requirements limit innovation in delivery.' },
+    { id:'i12', text:'Marines feel their time is not respected.' },
+    { id:'i13', text:'Frustration arises when training does not improve real performance.' },
+    { id:'i14', text:'Marines want learning that helps them lead and operate better.' },
+    { id:'i15', text:'Disengagement increases when PME feels irrelevant.' },
+    { id:'i16', text:'Some Marines privately admit they don’t see the point in attending.' }
+  ];
+
+  const poolEl = document.getElementById('cardPool');
+  const dropZones = document.querySelectorAll('.affinity-drop');
+
+  let selectedCard = null;   // for tap-to-move mode
+
+  function renderCards(){
+    INSIGHTS.forEach(item=>{
+      const card = document.createElement('div');
+      card.className = 'affinity-card';
+      card.textContent = item.text;
+      card.setAttribute('draggable','true');
+      card.dataset.id = item.id;
+      addDragHandlers(card);
+      addTapHandlers(card);
+      poolEl.appendChild(card);
+    });
+  }
+
+  function addDragHandlers(card){
+    // drag & drop for desktop (mouse)
+    card.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', card.dataset.id);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', ()=>{
+      dropZones.forEach(z=>z.classList.remove('highlight'));
+      poolEl.classList.remove('highlight');
+    });
+  }
+
+  function addTapHandlers(card){
+    // tap-to-select on touch or small screens
+    card.addEventListener('click', ()=>{
+      const isMobile = window.matchMedia('(max-width: 768px)').matches || 'ontouchstart' in window;
+      if(!isMobile) return; // desktop uses drag
+
+      if(selectedCard === card){
+        // deselect
+        card.classList.remove('selected');
+        selectedCard = null;
+      } else {
+        // clear previous selection
+        if(selectedCard){
+          selectedCard.classList.remove('selected');
+        }
+        selectedCard = card;
+        card.classList.add('selected');
+      }
+    });
+  }
+
+  function wireDropZones(){
+    // drag & drop support (desktop)
+    dropZones.forEach(zone=>{
+      zone.addEventListener('dragover', e=>{
+        e.preventDefault();
+        zone.classList.add('highlight');
+      });
+      zone.addEventListener('dragleave', ()=>{
+        zone.classList.remove('highlight');
+      });
+      zone.addEventListener('drop', e=>{
+        e.preventDefault();
+        zone.classList.remove('highlight');
+        const id = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector('.affinity-card[data-id="'+id+'"]');
+        if(card){ zone.appendChild(card); }
+      });
+
+      // tap-to-move target
+      zone.addEventListener('click', ()=>{
+        const isMobile = window.matchMedia('(max-width: 768px)').matches || 'ontouchstart' in window;
+        if(!isMobile) return;
+        if(selectedCard){
+          zone.appendChild(selectedCard);
+          selectedCard.classList.remove('selected');
+          selectedCard = null;
+        }
+      });
+    });
+
+    // pool as a drop & tap target
+    poolEl.addEventListener('dragover', e=>{
+      e.preventDefault();
+      poolEl.classList.add('highlight');
+    });
+    poolEl.addEventListener('dragleave', ()=>{
+      poolEl.classList.remove('highlight');
+    });
+    poolEl.addEventListener('drop', e=>{
+      e.preventDefault();
+      poolEl.classList.remove('highlight');
+      const id = e.dataTransfer.getData('text/plain');
+      const card = document.querySelector('.affinity-card[data-id="'+id+'"]');
+      if(card){ poolEl.appendChild(card); }
+    });
+
+    poolEl.addEventListener('click', ()=>{
+      const isMobile = window.matchMedia('(max-width: 768px)').matches || 'ontouchstart' in window;
+      if(!isMobile) return;
+      if(selectedCard){
+        poolEl.appendChild(selectedCard);
+        selectedCard.classList.remove('selected');
+        selectedCard = null;
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    renderCards();
+    wireDropZones();
+  });
+</script>
+
 </body>
 </html>
