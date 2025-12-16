@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Affinity Mapping Activity</title>
+  <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
+
+  <style>
+    :root{
+      --affinity-note:#fffad1;
+      --affinity-border:#c9c2ae;
+      --affinity-shadow:rgba(0,0,0,.08);
+      --affinity-zone-bg:#f7f2e6;
+      --affinity-zone-border:#7f5700;
+    }
+
+    #wrapper{ width:min(100%, var(--container-max)); margin:0 auto; }
+
+    .page-intro{
+      text-align:left;
+      margin:16px 0 8px;
+    }
+
+    /* Top row of insight cards */
+    .insight-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      padding:10px;
+      border:3px solid var(--color-accent);
+      border-radius:var(--radius-lg);
+      background:var(--color-accent-soft);
+      margin-bottom:16px;
+      min-height:110px;
+    }
+    .insight-row-label{
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .affinity-card{
+      background:var(--affinity-note);
+      border:1px solid var(--affinity-border);
+      border-radius:10px;
+      padding:8px 10px;
+      box-shadow:0 2px 4px var(--affinity-shadow);
+      cursor:grab;
+      max-width:220px;
+      text-align:left;
+      font-size:0.9rem;
+    }
+    .affinity-card:active{
+      cursor:grabbing;
+    }
+
+    /* Category zones */
+    .affinity-grid{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:14px;
+      margin:10px 0 20px;
+    }
+    .affinity-zone{
+      border:2px dashed var(--affinity-zone-border);
+      border-radius:12px;
+      background:var(--affinity-zone-bg);
+      padding:8px;
+      min-height:160px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .affinity-zone-header{
+      background:#fff;
+      border-radius:10px;
+      padding:6px 8px;
+      text-align:left;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .affinity-zone-header span.badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:24px; height:24px;
+      border-radius:8px;
+      background:var(--color-accent-soft);
+      border:2px solid var(--color-accent);
+      font-size:0.8rem;
+    }
+    .affinity-drop{
+      margin-top:6px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:flex-start;
+      justify-content:flex-start;
+      min-height:100px;
+    }
+    .affinity-drop.highlight{
+      box-shadow:inset 0 0 0 3px rgba(160,120,60,.25);
+      background:#fffdf7;
+    }
+
+    .hint-text{
+      font-size:0.9rem;
+      color:var(--color-muted);
+      text-align:left;
+      margin-top:6px;
+    }
+
+    /* Mobile: cards in a single stack instead of spread row */
+    @media (max-width: 768px){
+      .insight-row{
+        flex-direction:column;
+        align-items:stretch;
+      }
+      .affinity-card{
+        max-width:100%;
+      }
+      .affinity-grid{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Design Thinking</h1>
+  <nav>
+    <a href="index.html"> Home</a>
+    <a href="page2_5phases.html"> The 5 Phases</a>
+    <a href="page3_CaseStudy.html"> Case Study</a>
+    <a href="page4_IntroCourse.html"> Intro Course</a>
+    <a href="page5_PostTest.html"> Post-Test</a>
+    <a href="page6_Brainstorming.html"> Brainstorming Activity</a>
+    <a href="page7_Matching.html"> Matching Activity</a>
+    <a href="page9_Empathymap.html"> Empathy Mapping Activity</a>
+    <a href="page10_Affinitymapping.html" class="active"> Affinity Mapping Activity</a>
+    <a href="page8_Resources.html"> Resources</a>
+  </nav>
+
+  <div id="wrapper">
+    <h1>Affinity Mapping Activity</h1>
+    <div class="page-intro">
+      <p>
+        In this activity, you’ll group insights from the PME scenario into four themes: 
+        <strong>Content Relevance</strong>, <strong>Engagement &amp; Delivery</strong>, 
+        <strong>System Constraints</strong>, and <strong>Motivation &amp; Emotion</strong>.
+      </p>
+      <p>
+        Drag each sticky note from the top into the category that best fits. On smaller screens, the cards will
+        appear in a single stack instead of side-by-side.
+      </p>
+    </div>
+
+    <!-- Top insight cards -->
+    <section aria-label="Insight cards to sort">
+      <div class="insight-row" id="cardPool">
+        <!-- Cards injected by JS -->
+      </div>
+      <p class="hint-text">
+        Tip: There is no single “perfect” answer. Focus on grouping cards by underlying meaning rather than exact wording.
+      </p>
+    </section>
+
+    <!-- Affinity categories -->
+    <section aria-label="Affinity mapping board">
+      <div class="affinity-grid">
+        <div class="affinity-zone" data-cat="CONTENT">
+          <div class="affinity-zone-header">
+            <span class="badge">1</span> Content Relevance
+          </div>
+          <div class="affinity-drop" data-drop="CONTENT"></div>
+        </div>
+
+        <div class="affinity-zone" data-cat="ENGAGEMENT">
+          <div class="affinity-zone-header">
+            <span class="badge">2</span> Engagement &amp; Delivery
+          </div>
+          <div class="affinity-drop" data-drop="ENGAGEMENT"></div>
+        </div>
+
+        <div class="affinity-zone" data-cat="SYSTEM">
+          <div class="affinity-zone-header">
+            <span class="badge">3</span> System Constraints
+          </div>
+          <div class="affinity-drop" data-drop="SYSTEM"></div>
+        </div>
+
+        <div class="affinity-zone" data-cat="MOTIVATION">
+          <div class="affinity-zone-header">
+            <span class="badge">4</span> Motivation &amp; Emotion
+          </div>
+          <div class="affinity-drop" data-drop="MOTIVATION"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Reflection</h2>
+      <p class="hint-text">
+        After you finish sorting, take a screenshot or print this page and submit to your instructor.
+        Then answer: <em>What patterns did you notice? Which category surprised you the most?</em>
+      </p>
+    </section>
+  </div>
+
+  <script>
+    // ---- Data for the 16 insight cards ----
+    const INSIGHTS = [
+      { id:'i1',  text:'Examples used in PME are outdated and don’t match current missions.' },
+      { id:'i2',  text:'Content does not connect to Marines’ real MOS tasks.' },
+      { id:'i3',  text:'Marines say PME feels like a check-in-the-box requirement.' },
+      { id:'i4',  text:'Marines tune out during long PowerPoint lectures.' },
+      { id:'i5',  text:'No hands-on activities or scenario-based discussions are included.' },
+      { id:'i6',  text:'Instructors struggle to generate participation.' },
+      { id:'i7',  text:'Marines feel the current PME format is boring and passive.' },
+      { id:'i8',  text:'Instructors must follow the mandated curriculum with little flexibility.' },
+      { id:'i9',  text:'PME materials are not regularly updated.' },
+      { id:'i10', text:'There is no structured mechanism for Marines to give feedback.' },
+      { id:'i11', text:'Administrative and policy requirements limit innovation in delivery.' },
+      { id:'i12', text:'Marines feel their time is not respected.' },
+      { id:'i13', text:'Frustration arises when training does not improve real performance.' },
+      { id:'i14', text:'Marines want learning that helps them lead and operate better.' },
+      { id:'i15', text:'Disengagement increases when PME feels irrelevant.' },
+      { id:'i16', text:'Some Marines privately admit they don’t see the point in attending.' }
+    ];
+
+    const poolEl = document.getElementById('cardPool');
+    const dropZones = document.querySelectorAll('.affinity-drop');
+
+    function renderCards(){
+      INSIGHTS.forEach(item=>{
+        const card = document.createElement('div');
+        card.className = 'affinity-card';
+        card.textContent = item.text;
+        card.setAttribute('draggable','true');
+        card.dataset.id = item.id;
+        addDragHandlers(card);
+        poolEl.appendChild(card);
+      });
+    }
+
+    function addDragHandlers(card){
+      card.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', card.dataset.id);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      card.addEventListener('dragend', ()=>{
+        dropZones.forEach(z=>z.classList.remove('highlight'));
+        poolEl.classList.remove('highlight');
+      });
+    }
+
+    function wireDropZones(){
+      // Category zones
+      dropZones.forEach(zone=>{
+        zone.addEventListener('dragover', e=>{
+          e.preventDefault();
+          zone.classList.add('highlight');
+        });
+        zone.addEventListener('dragleave', ()=>{
+          zone.classList.remove('highlight');
+        });
+        zone.addEventListener('drop', e=>{
+          e.preventDefault();
+          zone.classList.remove('highlight');
+          const id = e.dataTransfer.getData('text/plain');
+          const card = document.querySelector('.affinity-card[data-id="'+id+'"]');
+          if(card){ zone.appendChild(card); }
+        });
+      });
+
+      // Allow dropping back into the top pool
+      poolEl.addEventListener('dragover', e=>{
+        e.preventDefault();
+        poolEl.classList.add('highlight');
+      });
+      poolEl.addEventListener('dragleave', ()=>{
+        poolEl.classList.remove('highlight');
+      });
+      poolEl.addEventListener('drop', e=>{
+        e.preventDefault();
+        poolEl.classList.remove('highlight');
+        const id = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector('.affinity-card[data-id="'+id+'"]');
+        if(card){ poolEl.appendChild(card); }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      renderCards();
+      wireDropZones();
+    });
+  </script>
+</body>
+</html>
