@@ -5,16 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Brainstorming Activity – PME Whiteboard</title>
 
-  <!-- Reuse your existing course CSS -->
   <link href="CSS/lab4_jQuery.css" rel="stylesheet" type="text/css" />
 
   <style>
     :root{
-      /* User sticky note colors */
       --note-yellow:#ffd95e;
       --note-blue:#7eb7ff;
 
-      /* AI idea sticky note colors (distinct from user) */
       --note-orange:#ffa45e;
       --note-green:#9be7a5;
       --note-purple:#c9a3ff;
@@ -38,7 +35,6 @@
       margin:0.75rem 0 0.5rem;
     }
 
-    /* Layout / whiteboard */
     .brain-layout{
       margin:1rem auto 2.5rem;
       max-width:900px;
@@ -53,7 +49,7 @@
 
     .brain-board{
       position:relative;
-      width:900px;          /* fixed width to keep coordinates stable */
+      width:900px;
       height:560px;
       margin:0 auto;
       background:#fdfdfd;
@@ -74,7 +70,6 @@
       opacity:0.7;
     }
 
-    /* Controls at top of board */
     .brain-controls{
       position:absolute;
       top:10px;
@@ -130,7 +125,6 @@
       z-index:1;
     }
 
-    /* Sticky note base (anchored inside .brain-board) */
     .sticky-note{
       position:absolute;
       width:150px;
@@ -145,7 +139,7 @@
       cursor:grab;
       background:var(--note-yellow);
       transform:rotate(-2deg);
-      touch-action:none; /* for drag on touch */
+      touch-action:none;
       display:flex;
       flex-direction:column;
     }
@@ -154,7 +148,6 @@
       cursor:grabbing;
     }
 
-    /* Tape only for notes placed/used on the board */
     .sticky-note.on-board::before{
       content:"";
       position:absolute;
@@ -195,14 +188,12 @@
     #userNoteYellow{ left:30px; top:110px; transform:rotate(-3deg); }
     #userNoteBlue  { left:70px; top:150px; transform:rotate(2deg); }
 
-    /* Board placement zone */
     .board-zone{
       position:absolute;
       top:90px;
       left:220px;
       right:16px;
       bottom:16px;
-      /* invisible boundary */
     }
 
     @media (max-width:950px){
@@ -242,7 +233,7 @@
       <div class="brain-instructions">
         1. Drag a blank sticky from the left stack into the main whiteboard area.<br>
         2. Click inside the note body and type your idea (max 20 words).<br>
-        3. Every 40 seconds after your first idea, a new colored idea note will appear.
+        3. A collaborating peer will add a new idea every few seconds to spark your imagination and simulate brainstorming with a peer.
       </div>
 
       <div class="brain-board" id="brainBoard" aria-label="Brainstorm whiteboard">
@@ -263,8 +254,6 @@
         </div>
 
         <div class="note-bank-label">Your sticky notes</div>
-
-        <!-- Zone defining where "on-board" is -->
         <div class="board-zone" id="boardZone"></div>
 
         <!-- Two template user sticky notes -->
@@ -279,7 +268,12 @@
   </div>
 
   <script>
-    // ---------- HMW idea pools ----------
+    // Fixed template positions for respawn
+    const TEMPLATE_POSITIONS = {
+      'user-note-yellow': { left: 30, top: 110 },
+      'user-note-blue':   { left: 70, top: 150 }
+    };
+
     const IDEAS_RELEVANCE = [
       "PME auto-adapts daily using MOS data, task patterns, and unit rhythms.",
       "Marines receive micro-PME triggered by real moments: inspections, briefs, maintenance tasks.",
@@ -310,7 +304,7 @@
     let aiInterval = null;
     let timerInterval = null;
     let timerStarted = false;
-    let timerSeconds = 5 * 60; // 5 minutes
+    let timerSeconds = 5 * 60;
     let lastHmwValue = 'relevance';
 
     const board = document.getElementById('brainBoard');
@@ -331,7 +325,6 @@
     }
 
     function resetActivity(){
-      // Stop timers
       timerStarted = false;
       if (timerInterval) clearInterval(timerInterval);
       if (aiInterval) clearInterval(aiInterval);
@@ -339,22 +332,19 @@
       timerDisplay.textContent = formatTime(timerSeconds);
       document.getElementById('timerDisplay').classList.remove('timer-done');
 
-      // Remove AI notes
       document.querySelectorAll('.sticky-note[data-source="ai"]').forEach(n => n.remove());
 
-      // Reset AI pool
       resetAIPool();
 
-      // Reset templates and remove any user notes created from templates
+      // Reset templates and remove user-created notes
       document.querySelectorAll('.sticky-note[data-source="user"]').forEach(note => {
+        const colorClass = note.classList.contains('user-note-blue')
+          ? 'user-note-blue'
+          : 'user-note-yellow';
+        const pos = TEMPLATE_POSITIONS[colorClass];
         if (note.dataset.template === 'true'){
-          // Template: reset position and content
-          const originLeft = note.dataset.originLeft;
-          const originTop = note.dataset.originTop;
-          if (originLeft !== undefined && originTop !== undefined){
-            note.style.left = originLeft + 'px';
-            note.style.top = originTop + 'px';
-          }
+          note.style.left = pos.left + 'px';
+          note.style.top  = pos.top + 'px';
           note.classList.remove('on-board');
           note.dataset.activated = 'false';
           const body = note.querySelector('.note-body');
@@ -364,7 +354,6 @@
             body.classList.remove('note-placeholder');
           }
         } else {
-          // Non-template user sticky: remove
           note.remove();
         }
       });
@@ -401,7 +390,7 @@
           return;
         }
         addAISticky();
-      }, 40000); // every 40 seconds
+      }, 40000);
     }
 
     function randomFromArray(arr){
@@ -413,8 +402,7 @@
     let aiNoteCount = 0;
 
     function addAISticky(){
-      if (timerSeconds <= 0) return;
-      if (remainingAI.length === 0) return;
+      if (timerSeconds <= 0 || remainingAI.length === 0) return;
 
       const idea = randomFromArray(remainingAI);
       const note = document.createElement('div');
@@ -430,10 +418,8 @@
       note.dataset.activated = 'true';
       note.id = 'aiNote' + aiNoteCount;
 
-      // Place randomly inside boardZone
       const zoneRect = boardZone.getBoundingClientRect();
       const boardRect = board.getBoundingClientRect();
-
       const noteWidth = 160;
       const noteHeight = 130;
 
@@ -449,10 +435,9 @@
       note.style.top  = top  + 'px';
 
       board.appendChild(note);
-      attachDragHandlers(note, false); // draggable but not editable
+      attachDragHandlers(note, false);
     }
 
-    // ---- Word limit logic for user notes ----
     function enforceWordLimit(bodyEl){
       bodyEl.addEventListener('input', ()=>{
         const text = bodyEl.textContent.replace(/\n/g,' ').trim();
@@ -491,18 +476,15 @@
       enforceWordLimit(body);
     }
 
-    // Create a new template note of same color at origin position
-    function spawnTemplate(originLeft, originTop, colorClass){
+    function spawnTemplate(colorClass){
+      const pos = TEMPLATE_POSITIONS[colorClass];
       const note = document.createElement('div');
       note.className = 'sticky-note ' + colorClass;
       note.dataset.source = 'user';
       note.dataset.template = 'true';
       note.dataset.activated = 'false';
-      note.dataset.originLeft = originLeft;
-      note.dataset.originTop = originTop;
-
-      note.style.left = originLeft + 'px';
-      note.style.top  = originTop + 'px';
+      note.style.left = pos.left + 'px';
+      note.style.top  = pos.top + 'px';
 
       const body = document.createElement('div');
       body.className = 'note-body';
@@ -514,27 +496,15 @@
       attachDragHandlers(note, true);
     }
 
-    // ---- Drag logic using Pointer Events anchored to board ----
     (function(){
       const notes = document.querySelectorAll('.sticky-note');
       let activeNote = null;
-      let offsetX = 0;
-      let offsetY = 0;
-      let isDragging = false;
-      let startX = 0;
-      let startY = 0;
+      let offsetX = 0, offsetY = 0;
+      let startX = 0, startY = 0;
 
-      // record template original positions
-      notes.forEach(note => {
-        const left = parseFloat(note.style.left) || 0;
-        const top  = parseFloat(note.style.top) || 0;
-        note.dataset.originLeft = left;
-        note.dataset.originTop = top;
-        attachDragHandlers(note, true);
-      });
+      notes.forEach(note => attachDragHandlers(note, true));
 
       function pointerDown(e){
-        // Whole sticky is draggable, including body
         activeNote = e.currentTarget;
         activeNote.setPointerCapture(e.pointerId);
 
@@ -544,7 +514,6 @@
         offsetY = e.clientY - noteRect.top;
         startX = e.clientX;
         startY = e.clientY;
-        isDragging = false;
 
         const left = noteRect.left - boardRect.left;
         const top  = noteRect.top  - boardRect.top;
@@ -558,13 +527,8 @@
 
       function pointerMove(e){
         if (!activeNote) return;
-        const dx = Math.abs(e.clientX - startX);
-        const dy = Math.abs(e.clientY - startY);
-        if (dx > 2 || dy > 2){ // small threshold
-          isDragging = true;
-        }
-
         const boardRect = board.getBoundingClientRect();
+
         let newLeft = e.clientX - boardRect.left - offsetX;
         let newTop  = e.clientY - boardRect.top  - offsetY;
 
@@ -596,19 +560,15 @@
             noteRect.top   < zoneRect.bottom - 5;
 
           if (inside){
-            // If this is the first time a template is placed, convert to "real" note
             if (isTemplate){
               activeNote.dataset.template = 'false';
               activateUserNote(activeNote);
               startTimerOnce();
-              // spawn a new template back at origin
-              const originLeft = parseFloat(activeNote.dataset.originLeft) || 0;
-              const originTop  = parseFloat(activeNote.dataset.originTop) || 0;
-              const isYellow = activeNote.classList.contains('user-note-yellow');
-              const colorClass = isYellow ? 'user-note-yellow' : 'user-note-blue';
-              spawnTemplate(originLeft, originTop, colorClass);
+              const colorClass = activeNote.classList.contains('user-note-blue')
+                ? 'user-note-blue'
+                : 'user-note-yellow';
+              spawnTemplate(colorClass);
             } else {
-              // already a "real" user note; ensure activated
               activateUserNote(activeNote);
               startTimerOnce();
             }
@@ -617,7 +577,6 @@
 
         activeNote.releasePointerCapture(e.pointerId);
         activeNote = null;
-        isDragging = false;
         board.removeEventListener('pointermove', pointerMove);
         board.removeEventListener('pointerup', pointerUp);
         board.removeEventListener('pointercancel', pointerUp);
@@ -628,27 +587,23 @@
         if (initUser){
           const body = note.querySelector('.note-body');
           if (body){
-            body.textContent = '';          // start blank
-            body.contentEditable = false;   // becomes editable when activated
+            body.textContent = '';
+            body.contentEditable = false;
           }
         }
       }
 
-      // expose for AI notes
       window.attachDragHandlers = attachDragHandlers;
     })();
 
-    // ---- HMW change: confirm + reset if timer already started ----
     hmwSelect.addEventListener('change', (e)=>{
       const newVal = e.target.value;
       if (timerStarted){
         const ok = window.confirm("Please confirm you want to restart the activity?");
         if (!ok){
-          // revert selection
           hmwSelect.value = lastHmwValue;
           return;
         }
-        // user confirmed restart
         lastHmwValue = newVal;
         resetActivity();
       } else {
@@ -657,9 +612,9 @@
       }
     });
 
-    // Initialize lastHmw and AI pool
     lastHmwValue = hmwSelect.value;
     resetAIPool();
   </script>
 </body>
 </html>
+
